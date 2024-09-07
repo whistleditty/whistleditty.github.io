@@ -1,19 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>我的数字花园</title>
+    <title>XH&#39;s Blog</title>
     <link>https://whistleditty.github.io/</link>
-    <description>Recent content on 我的数字花园</description>
+    <description>Recent content on XH&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en</language>
+    <copyright>&lt;a href=&#34;https://creativecommons.org/licenses/by-nc/4.0/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;CC BY-NC 4.0&lt;/a&gt;</copyright>
     <lastBuildDate>Fri, 09 Feb 2024 15:34:04 +0900</lastBuildDate>
     <atom:link href="https://whistleditty.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>俺</title>
+      <link>https://whistleditty.github.io/about/</link>
+      <pubDate>Sun, 21 Apr 2024 07:24:08 +0800</pubDate>
+      <guid>https://whistleditty.github.io/about/</guid>
+      <description>这是我&#xA;知识像水池，也需一个出口，像断舍离一样不断更新。&#xA;梦想是早上醒来就能看到大海。</description>
+    </item>
     <item>
       <title>第一篇文章</title>
       <link>https://whistleditty.github.io/posts/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</link>
       <pubDate>Fri, 09 Feb 2024 15:34:04 +0900</pubDate>
       <guid>https://whistleditty.github.io/posts/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</guid>
-      <description>今天我们之所以欢聚在这里，是为了庆祝我的blog正式被你发现了。&#xA;一个简单到不能再简单的博客，希望我写的东西对你没用。&#xA;浪费时间在一些傻傻的东西上。</description>
+      <description>&lt;p&gt;今天我们之所以欢聚在这里，是为了庆祝我的blog正式被你发现了。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>《宇宙探索编辑部》我的2023最佳电影</title>
+      <link>https://whistleditty.github.io/posts/%E5%AE%87%E5%AE%99%E6%8E%A2%E7%B4%A2%E7%BC%96%E8%BE%91%E9%83%A8%E6%88%91%E7%9A%842023%E6%9C%80%E4%BD%B3%E7%94%B5%E5%BD%B1/</link>
+      <pubDate>Sat, 30 Dec 2023 23:14:56 +0800</pubDate>
+      <guid>https://whistleditty.github.io/posts/%E5%AE%87%E5%AE%99%E6%8E%A2%E7%B4%A2%E7%BC%96%E8%BE%91%E9%83%A8%E6%88%91%E7%9A%842023%E6%9C%80%E4%BD%B3%E7%94%B5%E5%BD%B1/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;我们之所以现在朝九晚五，上班下班，终究还是希望有一天，我们能够有机会，去探索宇宙的。&lt;/p&gt;&#xA;&lt;/blockquote&gt;</description>
     </item>
   </channel>
 </rss>

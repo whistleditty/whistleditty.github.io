@@ -2,6 +2,9 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://whistleditty.github.io/about/</loc>
+    <lastmod>2024-04-21T07:24:08+08:00</lastmod>
+  </url><url>
     <loc>https://whistleditty.github.io/posts/</loc>
     <lastmod>2024-02-09T15:34:04+09:00</lastmod>
   </url><url>
@@ -16,6 +19,11 @@
   </url><url>
     <loc>https://whistleditty.github.io/posts/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</loc>
     <lastmod>2024-02-09T15:34:04+09:00</lastmod>
+  </url><url>
+    <loc>https://whistleditty.github.io/posts/%E5%AE%87%E5%AE%99%E6%8E%A2%E7%B4%A2%E7%BC%96%E8%BE%91%E9%83%A8%E6%88%91%E7%9A%842023%E6%9C%80%E4%BD%B3%E7%94%B5%E5%BD%B1/</loc>
+    <lastmod>2023-12-30T23:14:56+08:00</lastmod>
+  </url><url>
+    <loc>https://whistleditty.github.io/1/</loc>
   </url><url>
     <loc>https://whistleditty.github.io/blog/</loc>
   </url><url>
