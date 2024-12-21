@@ -6,8 +6,19 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <copyright>&lt;a href=&#34;https://creativecommons.org/licenses/by-nc/4.0/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;CC BY-NC 4.0&lt;/a&gt;</copyright>
-        <lastBuildDate>Fri, 09 Feb 2024 15:34:04 +0900</lastBuildDate>
+        <lastBuildDate>Sat, 21 Dec 2024 17:10:58 +0800</lastBuildDate>
         <atom:link href="https://whistleditty.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+        
+        <item>
+            <title>Test</title>
+            <link>https://whistleditty.github.io/posts/test1/</link>
+            <pubDate>Sat, 21 Dec 2024 17:10:58 +0800</pubDate>
+            
+            <guid>https://whistleditty.github.io/posts/test1/</guid>
+            <description>你好你好你好2024-12-21 20:30:57</description>
+            <content type="html"><![CDATA[<p>你好你好你好2024-12-21 20:30:57</p>
+]]></content>
+        </item>
         
         <item>
             <title>第一篇文章</title>
