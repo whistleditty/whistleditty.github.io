@@ -14,14 +14,14 @@
       <link>https://whistleditty.github.io/posts/%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%87%AA%E5%B7%B1%E7%9A%84%E6%83%85%E7%BB%AA%E5%85%B1%E5%A4%84-%E5%A4%B4%E8%84%91%E7%89%B9%E5%B7%A5%E9%98%9F2%E6%88%91%E7%9A%842024%E5%B9%B4%E5%BA%A6%E7%94%B5%E5%BD%B1/</link>
       <pubDate>Sat, 21 Dec 2024 21:52:58 +0800</pubDate>
       <guid>https://whistleditty.github.io/posts/%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%87%AA%E5%B7%B1%E7%9A%84%E6%83%85%E7%BB%AA%E5%85%B1%E5%A4%84-%E5%A4%B4%E8%84%91%E7%89%B9%E5%B7%A5%E9%98%9F2%E6%88%91%E7%9A%842024%E5%B9%B4%E5%BA%A6%E7%94%B5%E5%BD%B1/</guid>
-      <description>&lt;p&gt;　　思来想去，《头脑特工队2》大概是我2024年最爱的电影了。这部电影最触动我的，是它将情绪拟人化，描绘了他们的多样性和共存方式。&lt;/p&gt;</description>
+      <description></description>
     </item>
     <item>
       <title>自动化测试</title>
       <link>https://whistleditty.github.io/posts/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95/</link>
       <pubDate>Sat, 21 Dec 2024 17:10:58 +0800</pubDate>
       <guid>https://whistleditty.github.io/posts/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95/</guid>
-      <description>你好你好你好2024-12-21 20:30:57 成功了吗？ 再试一次 成功了！把代码贴上来好了：&#xA;#!/bin/bash set -euo pipefail # 设置严格的错误处理模式，遇到任何错误都会退出脚本 # Change to the script&amp;#39;s directory SCRIPT_DIR=&amp;#34;$(cd &amp;#34;$(dirname &amp;#34;${BASH_SOURCE[0]}&amp;#34;)&amp;#34; &amp;amp;&amp;amp; pwd)&amp;#34; # 获取并切换到脚本所在的目录 cd &amp;#34;$SCRIPT_DIR&amp;#34; # Set variables for Obsidian to Hugo copy sourcePath=&amp;#34;/Users/xiuhao/Library/Mobile Documents/iCloud~md~obsidian/Documents/个人/posts/&amp;#34; # 定义Obsidian笔记存放博客文章的路径 destinationPath=&amp;#34;/Users/xiuhao/blog/hugosite/content/posts&amp;#34; # 定义Hugo内容文件夹的路径 # Set GitHub Repo myrepo=&amp;#34;git@github.com:whistleditty/whistleditty.github.io.git&amp;#34; # 定义GitHub上的远程仓库地址 # Set Hugo build and public directory hugo_dir=&amp;#34;/Users/xiuhao/blog/hugosite&amp;#34; # Hugo 项目根目录 public_dir=&amp;#34;$hugo_dir/public&amp;#34; # Hugo 构建后生成的 public 目录 # Check for required commands for cmd in git rsync python3 hugo; do # 检查必要的命令是否存在 if !</description>
+      <description>&lt;p&gt;你好你好你好2024-12-21 20:30:57&#xA;成功了吗？&#xA;再试一次&#xA;成功了！&lt;/p&gt;</description>
     </item>
     <item>
       <title>我</title>

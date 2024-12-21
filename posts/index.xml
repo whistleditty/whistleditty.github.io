@@ -15,9 +15,8 @@
             <pubDate>Sat, 21 Dec 2024 21:52:58 +0800</pubDate>
             
             <guid>https://whistleditty.github.io/posts/%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%87%AA%E5%B7%B1%E7%9A%84%E6%83%85%E7%BB%AA%E5%85%B1%E5%A4%84-%E5%A4%B4%E8%84%91%E7%89%B9%E5%B7%A5%E9%98%9F2%E6%88%91%E7%9A%842024%E5%B9%B4%E5%BA%A6%E7%94%B5%E5%BD%B1/</guid>
-            <description>&lt;p&gt;　　思来想去，《头脑特工队2》大概是我2024年最爱的电影了。这部电影最触动我的，是它将情绪拟人化，描绘了他们的多样性和共存方式。&lt;/p&gt;</description>
-            <content type="html"><![CDATA[<p>　　思来想去，《头脑特工队2》大概是我2024年最爱的电影了。这部电影最触动我的，是它将情绪拟人化，描绘了他们的多样性和共存方式。</p>
-<p>快乐、悲伤、愤怒、焦虑……他们都没有绝对的好与坏，正是这些情绪交织在一起，才构成了完整的自我。如果要定义我的情绪小队，或许和电影主角一样，“焦焦”是那个随时准备吹哨的大脑守卫者，它让我时刻保持清醒，却也让我常常疲惫</p>
+            <description></description>
+            <content type="html"><![CDATA[<p>思来想去，《头脑特工队2》大概是我2024年最爱的电影了。这部电影最触动我的，是它将情绪拟人化，描绘了他们的多样性和共存方式。快乐、悲伤、愤怒、焦虑……他们都没有绝对的好与坏，正是这些情绪交织在一起，才构成了完整的自我。如果要定义我的情绪小队，或许和电影主角一样，“焦焦”是那个随时准备吹哨的大脑守卫者，它让我时刻保持清醒，却也让我常常疲惫</p>
 <h2 id="成长中的情绪快乐去哪了">成长中的情绪：“快乐”去哪了？</h2>
 <p>　　小时候的快乐似乎唾手可得。杂货店的小玩具、学校旁的无骨鸡柳，甚至是看窗外的云都能让人开心。越长大却越发现，快乐不再是每天的主旋律。它不像小时候那样明目张胆地跳出来，而是变得更加隐秘。有时候觉得快乐藏了起来，甚至怀疑它是不是消失了。但其实，快乐一直都在，只是可能被更强烈的情绪掩盖了。焦虑、恐惧和愤怒会占据主导，让快乐显得渺小而脆弱。</p>
 <p>　　那么，如何呼唤隐藏的快乐？靠的是<strong>主动寻找</strong>。快乐不是等来的，而是我们内心对生活发出的邀请。</p>
@@ -44,260 +43,140 @@
             <pubDate>Sat, 21 Dec 2024 17:10:58 +0800</pubDate>
             
             <guid>https://whistleditty.github.io/posts/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95/</guid>
-            <description>你好你好你好2024-12-21 20:30:57 成功了吗？ 再试一次 成功了！把代码贴上来好了：
-#!/bin/bash set -euo pipefail # 设置严格的错误处理模式，遇到任何错误都会退出脚本 # Change to the script&amp;#39;s directory SCRIPT_DIR=&amp;#34;$(cd &amp;#34;$(dirname &amp;#34;${BASH_SOURCE[0]}&amp;#34;)&amp;#34; &amp;amp;&amp;amp; pwd)&amp;#34; # 获取并切换到脚本所在的目录 cd &amp;#34;$SCRIPT_DIR&amp;#34; # Set variables for Obsidian to Hugo copy sourcePath=&amp;#34;/Users/xiuhao/Library/Mobile Documents/iCloud~md~obsidian/Documents/个人/posts/&amp;#34; # 定义Obsidian笔记存放博客文章的路径 destinationPath=&amp;#34;/Users/xiuhao/blog/hugosite/content/posts&amp;#34; # 定义Hugo内容文件夹的路径 # Set GitHub Repo myrepo=&amp;#34;git@github.com:whistleditty/whistleditty.github.io.git&amp;#34; # 定义GitHub上的远程仓库地址 # Set Hugo build and public directory hugo_dir=&amp;#34;/Users/xiuhao/blog/hugosite&amp;#34; # Hugo 项目根目录 public_dir=&amp;#34;$hugo_dir/public&amp;#34; # Hugo 构建后生成的 public 目录 # Check for required commands for cmd in git rsync python3 hugo; do # 检查必要的命令是否存在 if !</description>
+            <description>&lt;p&gt;你好你好你好2024-12-21 20:30:57
+成功了吗？
+再试一次
+成功了！&lt;/p&gt;</description>
             <content type="html"><![CDATA[<p>你好你好你好2024-12-21 20:30:57
 成功了吗？
 再试一次
-成功了！把代码贴上来好了：</p>
+成功了！</p>
+<p>把代码贴上来好了：</p>
 <pre tabindex="0"><code>#!/bin/bash
-
-set -euo pipefail # 设置严格的错误处理模式，遇到任何错误都会退出脚本
-
-  
+set -euo pipefail  # 设置严格的错误处理模式，遇到任何错误都会退出脚本
 
 # Change to the script&#39;s directory
-
-SCRIPT_DIR=&#34;$(cd &#34;$(dirname &#34;${BASH_SOURCE[0]}&#34;)&#34; &amp;&amp; pwd)&#34; # 获取并切换到脚本所在的目录
-
+SCRIPT_DIR=&#34;$(cd &#34;$(dirname &#34;${BASH_SOURCE[0]}&#34;)&#34; &amp;&amp; pwd)&#34;  # 获取并切换到脚本所在的目录
 cd &#34;$SCRIPT_DIR&#34;
 
-  
-
 # Set variables for Obsidian to Hugo copy
-
-sourcePath=&#34;/Users/xiuhao/Library/Mobile Documents/iCloud~md~obsidian/Documents/个人/posts/&#34; # 定义Obsidian笔记存放博客文章的路径
-
-destinationPath=&#34;/Users/xiuhao/blog/hugosite/content/posts&#34; # 定义Hugo内容文件夹的路径
-
-  
+sourcePath=&#34;/Users/xiuhao/Library/Mobile Documents/iCloud~md~obsidian/Documents/个人/posts/&#34;  # 定义Obsidian笔记存放博客文章的路径
+destinationPath=&#34;/Users/xiuhao/blog/hugosite/content/posts&#34;  # 定义Hugo内容文件夹的路径
 
 # Set GitHub Repo
-
-myrepo=&#34;git@github.com:whistleditty/whistleditty.github.io.git&#34; # 定义GitHub上的远程仓库地址
-
-  
+myrepo=&#34;git@github.com:whistleditty/whistleditty.github.io.git&#34;  # 定义GitHub上的远程仓库地址
 
 # Set Hugo build and public directory
-
-hugo_dir=&#34;/Users/xiuhao/blog/hugosite&#34; # Hugo 项目根目录
-
-public_dir=&#34;$hugo_dir/public&#34; # Hugo 构建后生成的 public 目录
-
-  
+hugo_dir=&#34;/Users/xiuhao/blog/hugosite&#34;  # Hugo 项目根目录
+public_dir=&#34;$hugo_dir/public&#34;  # Hugo 构建后生成的 public 目录
 
 # Check for required commands
-
-for cmd in git rsync python3 hugo; do # 检查必要的命令是否存在
-
-if ! command -v $cmd &amp;&gt; /dev/null; then # 如果命令不存在
-
-echo &#34;$cmd is not installed or not in PATH.&#34; # 输出错误信息
-
-exit 1 # 退出脚本
-
-fi
-
+for cmd in git rsync python3 hugo; do  # 检查必要的命令是否存在
+    if ! command -v $cmd &amp;&gt; /dev/null; then  # 如果命令不存在
+        echo &#34;$cmd is not installed or not in PATH.&#34;  # 输出错误信息
+        exit 1  # 退出脚本
+    fi
 done
 
-  
-
 # Step 1: Check if Git is initialized, and initialize if necessary
-
-if [ ! -d &#34;.git&#34; ]; then # 如果当前目录下没有.git文件夹
-
-echo &#34;Initializing Git repository...&#34; # 输出初始化Git仓库的信息
-
-git init # 初始化一个新的Git仓库
-
-git remote add origin $myrepo # 添加远程仓库为origin
-
+if [ ! -d &#34;.git&#34; ]; then  # 如果当前目录下没有.git文件夹
+    echo &#34;Initializing Git repository...&#34;  # 输出初始化Git仓库的信息
+    git init  # 初始化一个新的Git仓库
+    git remote add origin $myrepo  # 添加远程仓库为origin
 else
-
-echo &#34;Git repository already initialized.&#34; # 输出Git仓库已经初始化的信息
-
-if ! git remote | grep -q &#39;origin&#39;; then # 如果远程仓库列表中没有origin
-
-echo &#34;Adding remote origin...&#34; # 输出添加远程仓库的信息
-
-git remote add origin $myrepo # 添加远程仓库为origin
-
+    echo &#34;Git repository already initialized.&#34;  # 输出Git仓库已经初始化的信息
+    if ! git remote | grep -q &#39;origin&#39;; then  # 如果远程仓库列表中没有origin
+        echo &#34;Adding remote origin...&#34;  # 输出添加远程仓库的信息
+        git remote add origin $myrepo  # 添加远程仓库为origin
+    fi
 fi
-
-fi
-
-  
 
 # Step 2: Sync posts from Obsidian to Hugo content folder using rsync
+echo &#34;Syncing posts from Obsidian...&#34;  # 输出同步博客文章的信息
 
-echo &#34;Syncing posts from Obsidian...&#34; # 输出同步博客文章的信息
-
-  
-
-if [ ! -d &#34;$sourcePath&#34; ]; then # 如果源路径不存在
-
-echo &#34;Source path does not exist: $sourcePath&#34; # 输出错误信息
-
-exit 1 # 退出脚本
-
+if [ ! -d &#34;$sourcePath&#34; ]; then  # 如果源路径不存在
+    echo &#34;Source path does not exist: $sourcePath&#34;  # 输出错误信息
+    exit 1  # 退出脚本
 fi
 
-  
-
-if [ ! -d &#34;$destinationPath&#34; ]; then # 如果目标路径不存在
-
-echo &#34;Destination path does not exist: $destinationPath&#34; # 输出错误信息
-
-exit 1 # 退出脚本
-
+if [ ! -d &#34;$destinationPath&#34; ]; then  # 如果目标路径不存在
+    echo &#34;Destination path does not exist: $destinationPath&#34;  # 输出错误信息
+    exit 1  # 退出脚本
 fi
 
-  
+rsync -av --delete &#34;$sourcePath&#34; &#34;$destinationPath&#34;  # 使用rsync同步文件，删除目标位置中源位置没有的内容
 
-rsync -av --delete &#34;$sourcePath&#34; &#34;$destinationPath&#34; # 使用rsync同步文件，删除目标位置中源位置没有的内容
-
-  
-  
 
 ## Step 3: Process Markdown files with Python script to handle image links
-
-#echo &#34;Processing image links in Markdown files...&#34; # 输出处理Markdown文件中的图片链接的信息
-
+#echo &#34;Processing image links in Markdown files...&#34;  # 输出处理Markdown文件中的图片链接的信息
 #
-
-#if [ ! -f &#34;images.py&#34; ]; then # 如果Python脚本不存在
-
-# echo &#34;Python script images.py not found.&#34; # 输出错误信息
-
-# exit 1 # 退出脚本
-
+#if [ ! -f &#34;images.py&#34; ]; then  # 如果Python脚本不存在
+#    echo &#34;Python script images.py not found.&#34;  # 输出错误信息
+#    exit 1  # 退出脚本
 #fi
-
 #
-
-#if ! python3 images.py; then # 运行Python脚本
-
-# echo &#34;Failed to process image links.&#34; # 如果运行失败，输出错误信息
-
-# exit 1 # 退出脚本
-
+#if ! python3 images.py; then  # 运行Python脚本
+#    echo &#34;Failed to process image links.&#34;  # 如果运行失败，输出错误信息
+#    exit 1  # 退出脚本
 #fi
-
 #
-
 # Step 4: Build the Hugo site
+echo &#34;Building the Hugo site...&#34;  # 输出构建Hugo站点的信息
+cd &#34;$hugo_dir&#34;  # 切换到 Hugo 项目目录
 
-echo &#34;Building the Hugo site...&#34; # 输出构建Hugo站点的信息
-
-cd &#34;$hugo_dir&#34; # 切换到 Hugo 项目目录
-
-  
-
-if ! hugo; then # 调用Hugo命令生成静态网站
-
-echo &#34;Hugo build failed.&#34; # 如果构建失败，输出错误信息
-
-exit 1 # 退出脚本
-
+if ! hugo; then  # 调用Hugo命令生成静态网站
+    echo &#34;Hugo build failed.&#34;  # 如果构建失败，输出错误信息
+    exit 1  # 退出脚本
 fi
-
-  
 
 # Step 5: Add changes to Git
-
-echo &#34;Staging changes for Git...&#34; # 输出将更改添加到Git暂存区的信息
-
+echo &#34;Staging changes for Git...&#34;  # 输出将更改添加到Git暂存区的信息
 cd &#34;$public_dir&#34;
-
-if git diff --quiet &amp;&amp; git diff --cached --quiet; then # 如果没有新的更改
-
-echo &#34;No changes to stage.&#34; # 输出没有新更改的信息
-
+if git diff --quiet &amp;&amp; git diff --cached --quiet; then  # 如果没有新的更改
+    echo &#34;No changes to stage.&#34;  # 输出没有新更改的信息
 else
-
-git add . # 将所有更改添加到暂存区
-
+    git add .  # 将所有更改添加到暂存区
 fi
-
-  
 
 # Step 6: Commit changes with a dynamic message
-
-commit_message=&#34;New Blog Post on $(date +&#39;%Y-%m-%d %H:%M:%S&#39;)&#34; # 生成提交信息，包含当前日期和时间
-
-if git diff --cached --quiet; then # 如果没有新的更改需要提交
-
-echo &#34;No changes to commit.&#34; # 输出没有新更改的信息
-
+commit_message=&#34;New Blog Post on $(date +&#39;%Y-%m-%d %H:%M:%S&#39;)&#34;  # 生成提交信息，包含当前日期和时间
+if git diff --cached --quiet; then  # 如果没有新的更改需要提交
+    echo &#34;No changes to commit.&#34;  # 输出没有新更改的信息
 else
-
-echo &#34;Committing changes...&#34; # 输出正在提交更改的信息
-
-git commit -m &#34;$commit_message&#34; # 提交更改
-
+    echo &#34;Committing changes...&#34;  # 输出正在提交更改的信息
+    git commit -m &#34;$commit_message&#34;  # 提交更改
 fi
-
-  
 
 # Step 7: Push all changes to the main branch
+echo &#34;Deploying to GitHub Main...&#34;  # 输出推送到主分支的信息
 
-echo &#34;Deploying to GitHub Main...&#34; # 输出推送到主分支的信息
-
-  
-
-if ! git push origin master; then # 推送本地更改到GitHub仓库的main分支
-
-echo &#34;Failed to push to main branch.&#34; # 如果推送失败，输出错误信息
-
-exit 1 # 退出脚本
-
+if ! git push origin master; then  # 推送本地更改到GitHub仓库的main分支
+    echo &#34;Failed to push to main branch.&#34;  # 如果推送失败，输出错误信息
+    exit 1  # 退出脚本
 fi
-
-  
 
 # Step 8: Push the public folder to the hostinger branch using subtree split and force push
+echo &#34;Deploying to GitHub Hostinger...&#34;  # 输出推送到Hostinger分支的信息
 
-echo &#34;Deploying to GitHub Hostinger...&#34; # 输出推送到Hostinger分支的信息
-
-  
-
-if git branch --list | grep -q &#39;hostinger-deploy&#39;; then # 如果存在名为hostinger-deploy的分支
-
-git branch -D hostinger-deploy # 删除该分支
-
+if git branch --list | grep -q &#39;hostinger-deploy&#39;; then  # 如果存在名为hostinger-deploy的分支
+    git branch -D hostinger-deploy  # 删除该分支
 fi
 
-  
-
-if ! git subtree split --prefix public -b hostinger-deploy; then # 创建一个只包含public文件夹的新分支
-
-echo &#34;Subtree split failed.&#34; # 如果创建失败，输出错误信息
-
-exit 1 # 退出脚本
-
+if ! git subtree split --prefix public -b hostinger-deploy; then  # 创建一个只包含public文件夹的新分支
+    echo &#34;Subtree split failed.&#34;  # 如果创建失败，输出错误信息
+    exit 1  # 退出脚本
 fi
 
-  
-
-if ! git push origin hostinger-deploy:hostinger --force; then # 强制推送新分支到远程仓库的hostinger分支
-
-echo &#34;Failed to push to hostinger branch.&#34; # 如果推送失败，输出错误信息
-
-git branch -D hostinger-deploy # 删除临时分支
-
-exit 1 # 退出脚本
-
+if ! git push origin hostinger-deploy:hostinger --force; then  # 强制推送新分支到远程仓库的hostinger分支
+    echo &#34;Failed to push to hostinger branch.&#34;  # 如果推送失败，输出错误信息
+    git branch -D hostinger-deploy  # 删除临时分支
+    exit 1  # 退出脚本
 fi
 
-  
+git branch -D hostinger-deploy  # 删除临时分支
 
-git branch -D hostinger-deploy # 删除临时分支
-
-  
-
-echo &#34;All done! Site synced, processed, committed, built, and deployed.&#34; # 输出完成所有操作的信息
-</code></pre><p>从<a href="https://www.youtube.com/@NetworkChuck">NetworkChuck</a>的代码改来的，他直接上传了hugo整个文件夹，但似乎只要上传public文件夹就够了，他的部署方式似乎有点区别所以不能直接用？虽然脚本还在报错<code>'public' does not exist; use 'git subtree add' Subtree split failed.</code> 但能用就行了，不管啦。</p>
-]]></content>
+echo &#34;All done! Site synced, processed, committed, built, and deployed.&#34;  # 输出完成所有操作的信息
+</code></pre><p>从<a href="https://www.youtube.com/@NetworkChuck">NetworkChuck</a>的代码改来的，他直接上传了hugo整个文件夹，但似乎只要上传public文件夹就够了，他的部署方式似乎有点区别所以不能直接用？虽然脚本还在报错<code>'public' does not exist; use 'git subtree add' Subtree split failed.</code> 但能用就行了，不管啦。</p>]]></content>
         </item>
         
         <item>
