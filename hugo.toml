@@ -1,0 +1,87 @@
+#baseURL = 'https://humditty.github.io/xh.github.io/'
+baseURL = 'https://whistleditty.github.io/'
+languageCode = 'zh-CN'
+title = '我的数字花园'
+
+#myfriend-Site
+theme        = "hello-friend-ng"
+paginate     = 10
+
+[params]
+  dateform        = "Jan 2, 2006"
+  dateformShort   = "Jan 2"
+  dateformNum     = "2006-01-02"
+  dateformNumTime = "2006-01-02 15:04" # 这些东西让日期变得混乱，显示9092-29-22 26:29这种超时空时间戳，忘记是从哪里copy来的，找了好久的原因，真是坑.(woc 好像这玩意不能改 就得是2006年 时间显示才是正确的)
+
+  # Subtitle for home 副标题
+  homeSubtitle = "Digitle Secluded Garden | 我的数字花园"
+
+
+  # Set disableReadOtherPosts to true in order to hide the links to other posts.
+  disableReadOtherPosts = false
+
+  # Enable sharing buttons, if you like
+  enableSharingButtons = false
+  
+  # Show a global language switcher in the navigation bar
+  enableGlobalLanguageMenu = false
+
+  # Metadata mostly used in document's head
+  description = "My new homepage or blog"
+  keywords = "homepage, blog"
+  images = [""]
+  
+  
+ # [[params.social]]
+ #   name = "email"
+ #   url  = "479876747@qq.com"
+
+  
+[taxonomies]
+    category = "blog"
+    tag      = "tags"
+    series   = "series"
+
+    summaryLength = 1
+
+[languages]
+  [languages.en]
+    title = "XH's Blog"  #标题
+#    keywords = ""
+    copyright = '<a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>'
+
+
+  [languages.en.params]
+    subtitle  = ""
+    readOtherPosts = "Read other posts"
+    
+    
+
+   [languages.en.params.logo]
+      logoText = "cd /posts"
+      logoHomeLink = "/posts"
+    # or
+    #
+    # path = "/img/your-example-logo.svg"
+    # alt = "Your example logo alt text"
+
+  # And you can even create generic menu
+
+
+  [[menu.main]]
+    identifier = "home"
+    name       = "Home"
+    url        = "/"
+    weight = 1
+
+  [[menu.main]]
+    identifier = "blog"
+    name       = "Blog"
+    url        = "/posts"
+    weight = 2
+  [[menu.main]]
+    identifier = "about"
+    name       = "About"
+    url        = "about/"
+    weight = 3
+    
