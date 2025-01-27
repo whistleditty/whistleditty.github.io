@@ -35,9 +35,8 @@
 <p>　　或许，《头脑特工队2》想告诉我们的是：每个人的情绪小队，都是为了帮助自己更好地活下去。焦虑、恐惧、愤怒，<strong>它们并不总是令人愉快，但它们存在的意义不可忽视。</strong></p>
 <p>　　当我们试图拥抱所有情绪，而不是排斥那些“负面”的部分时，我们才能真正接近完整的自我。焦虑并不可怕，愤怒也不丢脸，悲伤更不是软弱。它们是我们的同伴，是生活中的路标。</p>
 <p>　　“快乐去哪了？”这是电影留给我的问题，也是我留给自己的问题。快乐没有消失，它只是藏在我们心里的某个角落，等待我们用温柔的方式去找回它。</p>
-<p>　　你的情绪小队里，谁是队长？他们又带给你了什么？也许，当你学会和他们对话时，会发现这些情绪不仅仅是情感的波澜，它们还是人生的答案。
-　　  　　
-　　希望我们都能与自己的情绪小队和平共处，在接纳它们的过程中，找到更完整的自己，<strong>拥抱独一无二的自己</strong>。</p>]]></content>
+<p>　　你的情绪小队里，谁是队长？他们又带给你了什么？也许，当你学会和他们对话时，会发现这些情绪不仅仅是情感的波澜，它们还是人生的答案。</p>
+<p>　　希望我们都能与自己的情绪小队和平共处，在接纳它们的过程中，找到更完整的自己，<strong>拥抱独一无二的自己</strong>。</p>]]></content>
         </item>
         
         <item>
@@ -51,7 +50,7 @@
             <content type="html"><![CDATA[<pre><code>你好你好你好2024-12-21 20:30:57
 </code></pre>
 <p>成功了吗？
-再试一次
+再试一次<br>
 成功了！</p>
 <p>把代码贴上来好了：</p>
 <pre tabindex="0"><code>#!/bin/bash
@@ -178,7 +177,10 @@ fi
 git branch -D hostinger-deploy  # 删除临时分支
 
 echo &#34;All done! Site synced, processed, committed, built, and deployed.&#34;  # 输出完成所有操作的信息
-</code></pre><p>从<a href="https://www.youtube.com/@NetworkChuck">NetworkChuck</a>的代码改来的，他直接上传了hugo整个文件夹，但似乎只要上传public文件夹就够了，他的部署方式似乎有点区别所以不能直接用？虽然脚本还在报错<code>'public' does not exist; use 'git subtree add' Subtree split failed.</code> 但能用就行了，不管啦。</p>]]></content>
+</code></pre><p>整个方案是从<a href="https://www.youtube.com/@NetworkChuck">NetworkChuck</a>的代码改来的。<br>
+他直接上传了hugo整个文件夹，但似乎只要上传public文件夹就够了，他的部署方式似乎有点区别所以不能直接用？<br>
+虽然脚本还在报错<code>'public' does not exist; use 'git subtree add' Subtree split failed.</code> 但能用就行了，不管啦。
+😄</p>]]></content>
         </item>
         
         <item>
