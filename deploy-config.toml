@@ -31,19 +31,20 @@ public_dir = "public"
 # 远程仓库地址
 git_remote = "git@github.com:whistleditty/whistleditty.github.io.git"
 
-# GitHub Pages 部署分支（使用 master，不是 main）
-main_branch = "master"
+# 主项目分支（源码推送到 main）
+main_branch = "main"
 
-# Hostinger 部署分支（已禁用，保持配置以备将来使用）
-hostinger_branch = "hostinger"
+# GitHub Pages 部署分支（public 推送到 master）
+# 注意：这是 public 目录要推送的分支，不是主项目的分支
+hostinger_branch = "master"
 
 
 # ============================================================================
 # 部署配置
 # ============================================================================
 
-# 是否启用 Hostinger 部署（GitHub Pages 已足够，禁用 Hostinger）
-enable_hostinger = false
+# 是否启用 Hostinger 部署（这里实际用于推送到 GitHub Pages）
+enable_hostinger = true
 
 # 如果文件未变更，是否跳过 Hugo 构建（提升性能）
 skip_if_no_changes = true
