@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>XH&#39;s Blog</title>
+    <link>https://whistleditty.github.io/</link>
+    <description>Recent content on XH&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>&lt;a href=&#34;https://creativecommons.org/licenses/by-nc/4.0/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;CC BY-NC 4.0&lt;/a&gt;</copyright>
+    <lastBuildDate>Sun, 22 Feb 2026 16:30:00 +0800</lastBuildDate>
+    <atom:link href="https://whistleditty.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Git 同步脚本大升级：日志轮转 &#43; 智能重试 &#43; 环境变量支持</title>
+      <link>https://whistleditty.github.io/posts/git-%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC%E5%A4%A7%E5%8D%87%E7%BA%A7%E6%97%A5%E5%BF%97%E8%BD%AE%E8%BD%AC-&#43;-%E6%99%BA%E8%83%BD%E9%87%8D%E8%AF%95-&#43;-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%94%AF%E6%8C%81/</link>
+      <pubDate>Sun, 22 Feb 2026 16:30:00 +0800</pubDate>
+      <guid>https://whistleditty.github.io/posts/git-%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC%E5%A4%A7%E5%8D%87%E7%BA%A7%E6%97%A5%E5%BF%97%E8%BD%AE%E8%BD%AC-&#43;-%E6%99%BA%E8%83%BD%E9%87%8D%E8%AF%95-&#43;-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%94%AF%E6%8C%81/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>职场中最被低估的能力：从打断中恢复的速度</title>
+      <link>https://whistleditty.github.io/posts/%E8%81%8C%E5%9C%BA%E4%B8%AD%E6%9C%80%E8%A2%AB%E4%BD%8E%E4%BC%B0%E7%9A%84%E8%83%BD%E5%8A%9B%E4%BB%8E%E6%89%93%E6%96%AD%E4%B8%AD%E6%81%A2%E5%A4%8D%E7%9A%84%E9%80%9F%E5%BA%A6/</link>
+      <pubDate>Mon, 22 Sep 2025 23:02:58 +0800</pubDate>
+      <guid>https://whistleditty.github.io/posts/%E8%81%8C%E5%9C%BA%E4%B8%AD%E6%9C%80%E8%A2%AB%E4%BD%8E%E4%BC%B0%E7%9A%84%E8%83%BD%E5%8A%9B%E4%BB%8E%E6%89%93%E6%96%AD%E4%B8%AD%E6%81%A2%E5%A4%8D%E7%9A%84%E9%80%9F%E5%BA%A6/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>人在哪一段人生，就会听哪一首歌</title>
+      <link>https://whistleditty.github.io/posts/%E4%BA%BA%E5%9C%A8%E5%93%AA%E4%B8%80%E6%AE%B5%E4%BA%BA%E7%94%9F%E5%B0%B1%E4%BC%9A%E5%90%AC%E5%93%AA%E4%B8%80%E9%A6%96%E6%AD%8C/</link>
+      <pubDate>Sat, 26 Jul 2025 10:31:56 +0800</pubDate>
+      <guid>https://whistleditty.github.io/posts/%E4%BA%BA%E5%9C%A8%E5%93%AA%E4%B8%80%E6%AE%B5%E4%BA%BA%E7%94%9F%E5%B0%B1%E4%BC%9A%E5%90%AC%E5%93%AA%E4%B8%80%E9%A6%96%E6%AD%8C/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>《完美的日子》在一日又一日之间</title>
+      <link>https://whistleditty.github.io/posts/%E5%AE%8C%E7%BE%8E%E7%9A%84%E6%97%A5%E5%AD%90%E5%9C%A8%E4%B8%80%E6%97%A5%E5%8F%88%E4%B8%80%E6%97%A5%E4%B9%8B%E9%97%B4/</link>
+      <pubDate>Wed, 04 Jun 2025 23:14:56 +0800</pubDate>
+      <guid>https://whistleditty.github.io/posts/%E5%AE%8C%E7%BE%8E%E7%9A%84%E6%97%A5%E5%AD%90%E5%9C%A8%E4%B8%80%E6%97%A5%E5%8F%88%E4%B8%80%E6%97%A5%E4%B9%8B%E9%97%B4/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>学习与自己的情绪共处 ——《头脑特工队2》我的2024年度电影</title>
+      <link>https://whistleditty.github.io/posts/%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%87%AA%E5%B7%B1%E7%9A%84%E6%83%85%E7%BB%AA%E5%85%B1%E5%A4%84-%E5%A4%B4%E8%84%91%E7%89%B9%E5%B7%A5%E9%98%9F2%E6%88%91%E7%9A%842024%E5%B9%B4%E5%BA%A6%E7%94%B5%E5%BD%B1/</link>
+      <pubDate>Sat, 21 Dec 2024 21:52:58 +0800</pubDate>
+      <guid>https://whistleditty.github.io/posts/%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%87%AA%E5%B7%B1%E7%9A%84%E6%83%85%E7%BB%AA%E5%85%B1%E5%A4%84-%E5%A4%B4%E8%84%91%E7%89%B9%E5%B7%A5%E9%98%9F2%E6%88%91%E7%9A%842024%E5%B9%B4%E5%BA%A6%E7%94%B5%E5%BD%B1/</guid>
+      <description>&lt;pre&gt;&lt;code&gt;2024就要这么过去了&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+    <item>
+      <title>Obsidian自动化同步</title>
+      <link>https://whistleditty.github.io/posts/obsidian%E8%87%AA%E5%8A%A8%E5%8C%96%E5%90%8C%E6%AD%A5/</link>
+      <pubDate>Sat, 21 Dec 2024 17:10:58 +0800</pubDate>
+      <guid>https://whistleditty.github.io/posts/obsidian%E8%87%AA%E5%8A%A8%E5%8C%96%E5%90%8C%E6%AD%A5/</guid>
+      <description>&lt;p&gt;&lt;code&gt;你好你好你好 2024-12-21 20:30:57&lt;/code&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>我</title>
+      <link>https://whistleditty.github.io/about/</link>
+      <pubDate>Sun, 21 Apr 2024 07:24:08 +0800</pubDate>
+      <guid>https://whistleditty.github.io/about/</guid>
+      <description>这是我&#xA;知识像水池，也需一个出口，像断舍离一样不断更新。&#xA;梦想是早上醒来就能看到大海。&#xA;把每天当做一份礼物，坦然接受身边发生的任何事情。</description>
+    </item>
+    <item>
+      <title>第一篇文章</title>
+      <link>https://whistleditty.github.io/posts/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</link>
+      <pubDate>Fri, 09 Feb 2024 15:34:04 +0900</pubDate>
+      <guid>https://whistleditty.github.io/posts/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</guid>
+      <description>&lt;pre&gt;&lt;code&gt;今天我们之所以欢聚在这里，是为了庆祝我的blog正式被你发现了。&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+    <item>
+      <title>《宇宙探索编辑部》我的2023最佳电影</title>
+      <link>https://whistleditty.github.io/posts/%E5%AE%87%E5%AE%99%E6%8E%A2%E7%B4%A2%E7%BC%96%E8%BE%91%E9%83%A8%E6%88%91%E7%9A%842023%E6%9C%80%E4%BD%B3%E7%94%B5%E5%BD%B1/</link>
+      <pubDate>Sat, 30 Dec 2023 23:14:56 +0800</pubDate>
+      <guid>https://whistleditty.github.io/posts/%E5%AE%87%E5%AE%99%E6%8E%A2%E7%B4%A2%E7%BC%96%E8%BE%91%E9%83%A8%E6%88%91%E7%9A%842023%E6%9C%80%E4%BD%B3%E7%94%B5%E5%BD%B1/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;我们之所以现在朝九晚五，上班下班，终究还是希望有一天，我们能够有机会，去探索宇宙的。&lt;/p&gt;&#xA;&lt;/blockquote&gt;</description>
+    </item>
+  </channel>
+</rss>

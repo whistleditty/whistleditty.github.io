@@ -1,0 +1,552 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Posts on XH&#39;s Blog</title>
+        <link>https://whistleditty.github.io/posts/</link>
+        <description>Recent content in Posts on XH&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en</language>
+        <copyright>&lt;a href=&#34;https://creativecommons.org/licenses/by-nc/4.0/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;CC BY-NC 4.0&lt;/a&gt;</copyright>
+        <lastBuildDate>Sun, 22 Feb 2026 16:30:00 +0800</lastBuildDate>
+        <atom:link href="https://whistleditty.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+        
+        <item>
+            <title>Git 同步脚本大升级：日志轮转 &#43; 智能重试 &#43; 环境变量支持</title>
+            <link>https://whistleditty.github.io/posts/git-%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC%E5%A4%A7%E5%8D%87%E7%BA%A7%E6%97%A5%E5%BF%97%E8%BD%AE%E8%BD%AC-&#43;-%E6%99%BA%E8%83%BD%E9%87%8D%E8%AF%95-&#43;-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%94%AF%E6%8C%81/</link>
+            <pubDate>Sun, 22 Feb 2026 16:30:00 +0800</pubDate>
+            
+            <guid>https://whistleditty.github.io/posts/git-%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC%E5%A4%A7%E5%8D%87%E7%BA%A7%E6%97%A5%E5%BF%97%E8%BD%AE%E8%BD%AC-&#43;-%E6%99%BA%E8%83%BD%E9%87%8D%E8%AF%95-&#43;-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%94%AF%E6%8C%81/</guid>
+            <description></description>
+            <content type="html"><![CDATA[<p>最近重构了 Obsidian 笔记的自动同步脚本，从最初的粗糙版本升级到现在的生产级状态。这半个月的迭代，让我对自动化脚本的健壮性设计有了更深的理解。</p>
+<p>如果你也在维护类似的同步工具，或许这些经验能给你一些参考。</p>
+<hr>
+<h3 id="从能用就行到真正可靠">从&quot;能用就行&quot;到&quot;真正可靠&quot;</h3>
+<p>最早版本的脚本只有 30 行，配置写死，日志随意增长。网络一卡，推送失败，脚本就报错退出，还得手动处理。</p>
+<p>这次重构的核心目标就一个：<strong>让工具真正隐形</strong>——你运行它，然后忘记它，它自己搞定一切。</p>
+<hr>
+<h3 id="核心改进点">核心改进点</h3>
+<p><strong>1. 环境变量配置支持</strong></p>
+<p>告别硬编码路径：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>REPO_PATH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>REPO_PATH<span style="color:#66d9ef">:-</span>/default/path<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>LOG_FILE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>LOG_FILE<span style="color:#66d9ef">:-</span>/tmp/git-auto-sync.log<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span></code></pre></div><p>这意味着同一个脚本可以在多台设备上运行，只需通过环境变量覆盖配置。</p>
+<p><strong>2. 日志自动轮转</strong></p>
+<p>日志不控制的话会无限膨胀。我实现了一个标准的日志轮转机制：</p>
+<ul>
+<li>超过 10MB 自动压缩归档</li>
+<li>保留最近 5 个压缩文件</li>
+<li>自动清理 7 天前的旧日志</li>
+<li>兼容 macOS 和 Linux 的 <code>stat</code> 命令差异</li>
+</ul>
+<p>关键是这个架构：先检查大小 → 压缩当前 → 重命名旧文件 → 清理超限。</p>
+<p><strong>3. Git 配置持久化</strong></p>
+<p>原版每次 <code>git push</code> 都要传 <code>-c http.lowSpeedLimit=xxx</code>，既繁琐又不优雅。现在的做法是：第一次运行时在仓库级配置，后续直接复用。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git config http.lowSpeedLimit <span style="color:#ae81ff">1000</span>
+</span></span><span style="display:flex;"><span>git config http.lowSpeedTime <span style="color:#ae81ff">999</span>
+</span></span></code></pre></div><p>一次设置，永久生效。</p>
+<p><strong>4. 指数退避重试（最重要的改进）</strong></p>
+<p>网络不稳定是常态，push 失败不应该直接报错退出：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>retry_count<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>delay<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> $retry_count -lt <span style="color:#ae81ff">3</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> git push; <span style="color:#66d9ef">then</span> success; break; <span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>    sleep $delay
+</span></span><span style="display:flex;"><span>    delay<span style="color:#f92672">=</span><span style="color:#66d9ef">$((</span>delay <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span><span style="color:#66d9ef">))</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><p>5秒 → 10秒 → 20秒，最多试3次。大多数网络抖动都能自动恢复。</p>
+<hr>
+<h3 id="可配置参数一览">可配置参数一览</h3>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MAX_LOG_SIZE</code></td>
+<td>日志轮转阈值（默认 10MB）</td>
+</tr>
+<tr>
+<td><code>MAX_LOG_FILES</code></td>
+<td>保留的压缩文件数（默认 5）</td>
+</tr>
+<tr>
+<td><code>MAX_RETRIES</code></td>
+<td>推送最大重试次数（默认 3）</td>
+</tr>
+<tr>
+<td><code>RETRY_DELAY</code></td>
+<td>初始重试延迟（默认 5 秒）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="使用方式">使用方式</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 基本用法</span>
+</span></span><span style="display:flex;"><span>./git-sync.sh
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 自定义配置</span>
+</span></span><span style="display:flex;"><span>export MAX_LOG_SIZE<span style="color:#f92672">=</span><span style="color:#ae81ff">5242880</span>  <span style="color:#75715e"># 5MB 轮转</span>
+</span></span><span style="display:flex;"><span>export MAX_RETRIES<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>          <span style="color:#75715e"># 重试5次</span>
+</span></span><span style="display:flex;"><span>./git-sync.sh
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># crontab 定时同步（自带锁防止并发）</span>
+</span></span><span style="display:flex;"><span>*/5 * * * * /path/to/git-sync.sh &gt;&gt; /dev/null 2&gt;&amp;<span style="color:#ae81ff">1</span>
+</span></span></code></pre></div><p>完整脚本约 200 行，已保存至仓库根目录（<code>git-sync.sh</code>）。</p>
+<hr>
+<h3 id="测试数据">测试数据</h3>
+<p>最新一次同步：</p>
+<ul>
+<li>处理文件：6 个</li>
+<li>变更行数：+105 / -17</li>
+<li>耗时：~4 秒</li>
+<li>日志大小：1.4KB</li>
+</ul>
+<p>所有功能均验证通过，包括锁机制、日志轮转、push 重试等。网络短暂中断时，脚本会自动重试并最终成功。</p>
+<hr>
+<h3 id="写在最后">写在最后</h3>
+<p>自动化工具的价值，不是让你更忙，而是让你<strong>忘记它的存在</strong>。</p>
+<p>一个真正好用的脚本，应该像水电一样：你打开开关，它就开始工作；你不需要理解它是怎么发电的，也不需要担心它会突然断掉。</p>
+<p>这次重构的目标就是靠近这个理想。脚本依然可以继续优化，比如引入邮件通知、支持多分支、添加更详细的统计等。但现阶段，它已足够稳定，可以放心扔进 crontab，让它默默工作。</p>
+<hr>
+<p>如果你也有类似的自动化需求，欢迎交流。一起让工具变得更聪明，让时间花在更有价值的事情上。</p>]]></content>
+        </item>
+        
+        <item>
+            <title>职场中最被低估的能力：从打断中恢复的速度</title>
+            <link>https://whistleditty.github.io/posts/%E8%81%8C%E5%9C%BA%E4%B8%AD%E6%9C%80%E8%A2%AB%E4%BD%8E%E4%BC%B0%E7%9A%84%E8%83%BD%E5%8A%9B%E4%BB%8E%E6%89%93%E6%96%AD%E4%B8%AD%E6%81%A2%E5%A4%8D%E7%9A%84%E9%80%9F%E5%BA%A6/</link>
+            <pubDate>Mon, 22 Sep 2025 23:02:58 +0800</pubDate>
+            
+            <guid>https://whistleditty.github.io/posts/%E8%81%8C%E5%9C%BA%E4%B8%AD%E6%9C%80%E8%A2%AB%E4%BD%8E%E4%BC%B0%E7%9A%84%E8%83%BD%E5%8A%9B%E4%BB%8E%E6%89%93%E6%96%AD%E4%B8%AD%E6%81%A2%E5%A4%8D%E7%9A%84%E9%80%9F%E5%BA%A6/</guid>
+            <description></description>
+            <content type="html"><![CDATA[<p>你一定有过这样的瞬间：
+你刚打开电脑，准备进入深度工作。耳机一戴，文档一开，状态正要拉满——结果，领导一个电话打进来：“这个需求帮我看下，挺急的。”
+好家伙，专注值瞬间清零。</p>
+<p>等忙完回头，你发现：刚才积累的节奏全没了。时间被切走，心气被掐断。最痛苦的是——你知道自己努力了，却每一次刚要起飞，就被硬生生打断。</p>
+<p>这种无力感，几乎是每个职场人绕不开的共性。</p>
+<ul>
+<li>
+<p>可能是业务突然插话，却说不清楚；</p>
+</li>
+<li>
+<p>可能是领导临时甩下来一个任务；</p>
+</li>
+<li>
+<p>可能是刚进入工作状态，同事来到身边一句“在吗”就把你拉走。</p>
+</li>
+</ul>
+<p>这些场景熟悉吗？你可能昨天才刚经历过。</p>
+<p>打断本身不可避免，但让人痛苦的，其实是<strong>两层损失</strong>：</p>
+<ol>
+<li>
+<p><strong>时间被浪费</strong>——原本规划好的工作被切走一块。</p>
+</li>
+<li>
+<p><strong>节奏被打乱</strong>——大脑需要很久才能重新进入状态。</p>
+</li>
+</ol>
+<p>这也是为什么很多人下班后觉得整天都在瞎忙：并不是工作量真的大到不可承受，而是频繁打断让时间被撕碎、专注被破坏。</p>
+<hr>
+<h2 id="为什么打断让人如此难受">为什么打断让人如此难受？</h2>
+<p>别以为这只是“被耽误了几分钟”，其实它背后藏着一个更隐蔽的消耗。
+从心理学角度，背后有三个机制：</p>
+<ul>
+<li>
+<p><strong>掌控感被剥夺</strong>：人类对计划有天然依赖，一旦被破坏，就像开车时突然被插队，本能是愤怒。</p>
+</li>
+<li>
+<p><strong>任务切换成本高</strong>：研究显示，大脑从一个任务切回另一个任务，平均要 23 分钟才能完全恢复。</p>
+</li>
+<li>
+<p><strong>损失厌恶</strong>：我们对“失去”比对“获得”更敏感，被打断带来的负面感受，会被大脑放大。</p>
+</li>
+</ul>
+<p>我们的大脑，天生就不适合在碎片化的环境里高效运转。</p>
+<hr>
+<h2 id="真正拉开差距的不是能不能避免打断而是恢复速度">真正拉开差距的不是“能不能避免打断”，而是“恢复速度”</h2>
+<p>打断不会消失。无论你在外企、国企还是创业公司，都会有人不合时宜地闯进来。<br>
+但差别在于：</p>
+<ul>
+<li>
+<p>有人被打断一次，要花 30 分钟抱怨+焦虑；</p>
+</li>
+<li>
+<p>有人被打断后，能在 5 分钟内回到状态。</p>
+</li>
+</ul>
+<p><strong>恢复速度，就是核心竞争力。</strong></p>
+<hr>
+<h2 id="四步高恢复力流程">四步“高恢复力”流程</h2>
+<p>如果你不想因为被打断而反复掉血，可以尝试以下四步：</p>
+<ol>
+<li>
+<p><strong>写损失</strong></p>
+<ul>
+<li>
+<p>被打断时，先用一句话写下损失点：“原计划写文档中断 20 分钟”。</p>
+</li>
+<li>
+<p>好处是把混乱抽离出来，不再无限循环抱怨。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>找锚点</strong></p>
+<ul>
+<li>
+<p>问自己一句：“我现在还能推进哪一小块？”</p>
+</li>
+<li>
+<p>不要想着“挽回整块时间”，而是“保住当下的 10 分钟”。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>切片执行</strong></p>
+<ul>
+<li>
+<p>把剩余时间拆成几个 10–20 分钟小任务，让碎片时间依旧能产出。</p>
+</li>
+<li>
+<p>原理很简单：计划被打乱≠时间报废。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>收尾复盘</strong></p>
+<ul>
+<li>
+<p>结束时写一句：“今天被打断，但我还是完成了X”。</p>
+</li>
+<li>
+<p>给大脑一个“我有掌控”的收尾，避免怨气延续到下一个场景。</p>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="职场真正的强者">职场真正的强者</h2>
+<p>很多人把效率理解成“在不被打断时工作快”。<br>
+但现实是，职场少有不被打断的完美环境。<br>
+真正能脱颖而出的人，是那些<strong>在混乱中依旧能快速恢复节奏、持续推进</strong>的人。</p>
+<p>你的计划未必完美执行，但你的产出依旧稳定。<br>
+这，就是高恢复力带来的底气。</p>
+<hr>
+<p>🔑 如果你正在为今天的被打断懊恼，别急，我最后想送你一句话。</p>
+<p>别浪费精力幻想“如何让别人不打断我”。这几乎不可能。<br>
+世界不会为你的专注让路，但你可以为自己的节奏设立防护。</p>
+<p>唯一能掌控的，是——<strong>别人打断你后，你多久能回到自己的节奏。</strong></p>
+<p>你是否也经常被工作打断？ 你有什么快速恢复状态的小妙招吗？</p>
+<p>欢迎在评论区聊聊你的故事。
+如果觉得有启发，也别忘了<strong>点个【喜欢】</strong>，把这个心法分享给更多需要的朋友。</p>]]></content>
+        </item>
+        
+        <item>
+            <title>人在哪一段人生，就会听哪一首歌</title>
+            <link>https://whistleditty.github.io/posts/%E4%BA%BA%E5%9C%A8%E5%93%AA%E4%B8%80%E6%AE%B5%E4%BA%BA%E7%94%9F%E5%B0%B1%E4%BC%9A%E5%90%AC%E5%93%AA%E4%B8%80%E9%A6%96%E6%AD%8C/</link>
+            <pubDate>Sat, 26 Jul 2025 10:31:56 +0800</pubDate>
+            
+            <guid>https://whistleditty.github.io/posts/%E4%BA%BA%E5%9C%A8%E5%93%AA%E4%B8%80%E6%AE%B5%E4%BA%BA%E7%94%9F%E5%B0%B1%E4%BC%9A%E5%90%AC%E5%93%AA%E4%B8%80%E9%A6%96%E6%AD%8C/</guid>
+            <description></description>
+            <content type="html"><![CDATA[<p>在无数次打车途中，我都会被一种独特的音乐“袭击”——那是一种你听不懂，却又无处不在的声音：沧桑的男声，唢呐刺耳，底鼓像是粗暴地敲打着心跳。我完全无法共情，甚至有些生理上的抵触。</p>
+<p>当试图去理解，但脑子一边是旋律，一边是问号。我意识到，也许他们听我喜欢的歌，感受也是一样的怪，他们会觉得抒情不是唱歌，是矫情。</p>
+<p>音乐口味，何尝不是一堵无形却坚硬的墙，它将我们划分在各自的世界里，彼此隔阂，难以理解。</p>
+<p>我听得难受，是因为我还不理解他的心。或者说，我还活在自己的语境里，没法翻译他的。</p>
+<hr>
+<h3 id="音乐品味真的是品味吗">音乐品味，真的是“品味”吗？</h3>
+<p>音乐的魅力，或许不在于“好听”与否，而在于它能否贴近彼时彼刻的生活，能否替他人唱出那些难以言说的情绪，带来深刻的共鸣。</p>
+<p>原以为品味是挑剔，是审美，是严苛的筛选，是风格的固执。但现在才明白，它与我们的人生经历，才有着最深切的关联。谁能说自己永远只听某一种歌？人在不同阶段，对情绪的需求会变，耳朵也就跟着变了。
+有时候觉得自己选择了音乐，其实是活成了那个需要某种声音的人。</p>
+<p>所谓品味，更多源于所站的位置。位置不同，听见的音乐自然也不同。</p>
+<hr>
+<p>我们都曾站在彼此的音乐之外，彼此不懂，甚至互相厌恶。也许可有一天，被经历推到了类似的境地，我也会穿上皮夹克站在天台上，在B站搜索“2020年代最火伤感DJ”。<br>
+然后默默地点赞一首唱着“我们的感情好像跳楼机”的歌。</p>
+<p>又可能，我们永远不会懂彼此。<br>
+每一代人都有各自的语境和情绪频率。<br>
+我们没经历过他们曾经的经济上行年代，也未必体会过那种集体宿命感式的“兄弟义气”；而未来的我们，说不定会在由AI算法和虚拟歌手构成的声音环境里长大，音乐越来越精准，情绪却越来越假，不再需要“理解”，只需“匹配”。</p>
+<p>音乐是让曾经“活过”的那些部分，被“听见”。音乐会变，社会也在变。</p>
+<p>所谓品味，很多时候看起来像是选择，其实更像命运的回音。<br>
+我们共情不了的旋律，往往对应着我们未曾抵达的生活状态。</p>
+<p>每一代人，都在用各自能承受的方式，咀嚼那些无法言说的现实。在哪一段人生，就会听哪一首歌。</p>
+<p>真正的共鸣，往往是在最难的时候才听懂的。
+可惜那时候，也不一定想听歌了。</p>]]></content>
+        </item>
+        
+        <item>
+            <title>《完美的日子》在一日又一日之间</title>
+            <link>https://whistleditty.github.io/posts/%E5%AE%8C%E7%BE%8E%E7%9A%84%E6%97%A5%E5%AD%90%E5%9C%A8%E4%B8%80%E6%97%A5%E5%8F%88%E4%B8%80%E6%97%A5%E4%B9%8B%E9%97%B4/</link>
+            <pubDate>Wed, 04 Jun 2025 23:14:56 +0800</pubDate>
+            
+            <guid>https://whistleditty.github.io/posts/%E5%AE%8C%E7%BE%8E%E7%9A%84%E6%97%A5%E5%AD%90%E5%9C%A8%E4%B8%80%E6%97%A5%E5%8F%88%E4%B8%80%E6%97%A5%E4%B9%8B%E9%97%B4/</guid>
+            <description></description>
+            <content type="html"><![CDATA[<p>如果说《黎明的一切》讲述的是伤痕中萌发的情感与希望，那《完美的日子》则凝视那些已经愈合的伤口，如何悄无声息地融入日常，成为生活的一部分。</p>
+<p>它不谈救赎，不言疗愈，没有情节起伏，没有人物转变。整部电影围绕一种“已然”的状态缓缓展开：一个人如何在看似重复、平淡、甚至无人注视的日子里，与自己、与世界达成无声的和平。</p>
+<p>没有“变好”的意图，甚至没有“要怎样”的企图。但在这份日复一日的重复中，却隐约透出一种：<br>
+<strong>“我已经与世界和解” 的存在性平静。</strong></p>
+<hr>
+<h3 id="什么是完美的日子">什么是完美的日子？</h3>
+<p>电影《完美的日子》没有直接定义“完美”，它只是以一位公厕清洁工平山先生的日常，抛出一个深沉的问题。</p>
+<p>他像NPC般规律地出现在城市角落，清洁、用餐、拍照、抬头看天……一套近乎仪式化的生活动作，持续而专注。</p>
+<p>观影时我不断追问：“日日是好日”真的是种可能吗？我们真的能把每一天都活成完美的一天吗？直到影片结尾我才意识到：<br>
+它的片名是 <strong>Perfect Days</strong>——不是一个完美时刻，而是一种由平凡叠加而成、逐渐显现意义的“日子们”。</p>
+<hr>
+<h3 id="小确幸与内在秩序">小确幸与内在秩序</h3>
+<p>电影用极致克制、非戏剧化的笔法描绘平山的生活：没有情节高潮，只有简洁、清透、近乎静止的重复。但正是这种静默中，透出一种独特的秩序与美感。</p>
+<p>他清晨醒来，为盆栽喷水，驾驶旧车前往公厕清洁；午后在公园里拍下斑驳树影；晚上泡澡、喝酒、读书、听老磁带。他不求变动，也不逃避孤独，而是在这些细小重复中建立起一种深度自洽的生活节奏。</p>
+<p>他的“理想生活”并非彼岸幻想，而是一种已然落地的日常实践。他不依赖外在评价体系，不追逐刺激，只维护一种安静的秩序。在“重复”中安顿自己，在“琐碎”中体会存在。</p>
+<hr>
+<h3 id="无聊的深意">无聊的深意</h3>
+<p>但这种生活，也并非没有裂缝。那份宁静，甚至令人觉得“无聊”。</p>
+<p>不是让人烦躁的空虚感，而是一种静得足以让你审视自己的“存在感”。<br>
+在我们这个节奏过快、注意力碎片化的时代，平山的生活是反直觉的。他的日常几乎没有“成果”：完成清洁，回到独居房间，如此反复。</p>
+<p>电影并不掩饰这份“无聊”，反而让它变得真实、诚实。这种“无聊”不是缺乏，而是一种从重复中生出的稳定。<br>
+一种无需证明自己的生活方式，一种无声的清醒。</p>
+<p>它逼问我们：如果生活不再向“上”展开，我们还会怎样生活？我们能否承认：人这一生，可能只是为了找到一种可以长期栖身的“重复”方式？</p>
+<hr>
+<h3 id="理想与无聊的共存">理想与无聊的共存</h3>
+<p>平山的生活并非完全平静无波：侄女的来访、陌生人的交谈、一次突如其来的亲吻……生活偶尔掀起波澜，但他始终温和接纳，然后回归节奏，不被卷入。</p>
+<p>这正是电影最动人的部分：<strong>理想与无聊并不矛盾，它们可以共存。</strong></p>
+<p>完美不是脱离琐碎，而是在琐碎中安放自己；不是持续兴奋，而是与单调和平共处。<br>
+平山的生活就像一本无字日记，记录着：<strong>如何在重复中，维持自己的节奏和完整。</strong></p>
+<p>也许，“日日是好日”的真正含义就是：好日不是从天而降的好运，而是你拥有让它变好的能力。</p>
+<hr>
+<h3 id="完美不是状态而是过程">完美不是状态，而是过程</h3>
+<p>《完美的日子》不是一部讲述改变的电影，它讲述的是——如果没有改变，你能不能接受这样的生活？它没有答案，只是以一种近乎诗意的平实，把问题放在我们面前。</p>
+<p>理想生活不在远方，而可能就藏在眼前的“重复”中。而那份看似无聊的日常，并非无意义，它也许正是通向自洽与宁静的门径。</p>
+<p>选择如何面对无聊，选择在有限中如何发掘丰盛。平山以一种近似修行的方式，把平凡活出了厚度。</p>
+<p>我们不必成为他，但可以从他的沉默中听见一个提醒：</p>
+<p><strong>幸福，不是刺激的累积，而是愿意一次次地，把今天过好。</strong></p>]]></content>
+        </item>
+        
+        <item>
+            <title>学习与自己的情绪共处 ——《头脑特工队2》我的2024年度电影</title>
+            <link>https://whistleditty.github.io/posts/%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%87%AA%E5%B7%B1%E7%9A%84%E6%83%85%E7%BB%AA%E5%85%B1%E5%A4%84-%E5%A4%B4%E8%84%91%E7%89%B9%E5%B7%A5%E9%98%9F2%E6%88%91%E7%9A%842024%E5%B9%B4%E5%BA%A6%E7%94%B5%E5%BD%B1/</link>
+            <pubDate>Sat, 21 Dec 2024 21:52:58 +0800</pubDate>
+            
+            <guid>https://whistleditty.github.io/posts/%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%87%AA%E5%B7%B1%E7%9A%84%E6%83%85%E7%BB%AA%E5%85%B1%E5%A4%84-%E5%A4%B4%E8%84%91%E7%89%B9%E5%B7%A5%E9%98%9F2%E6%88%91%E7%9A%842024%E5%B9%B4%E5%BA%A6%E7%94%B5%E5%BD%B1/</guid>
+            <description>&lt;pre&gt;&lt;code&gt;2024就要这么过去了
+&lt;/code&gt;&lt;/pre&gt;</description>
+            <content type="html"><![CDATA[<pre><code>2024就要这么过去了
+</code></pre>
+<p>思来想去，《头脑特工队2》大概是我2024年最爱的电影了。这部电影最触动我的，是它将情绪拟人化，描绘了他们的多样性和共存方式。快乐、悲伤、愤怒、焦虑……他们都没有绝对的好与坏，正是这些情绪交织在一起，才构成了完整的自我。如果要定义我的情绪小队，或许和电影主角一样，“焦焦”是那个随时准备吹哨的大脑守卫者，它让我时刻保持清醒，却也让我常常疲惫</p>
+<h2 id="成长中的情绪快乐去哪了">成长中的情绪：“快乐”去哪了？</h2>
+<p>　　小时候的快乐似乎唾手可得。杂货店的小玩具、学校旁的无骨鸡柳，甚至是看窗外的云都能让人开心。越长大却越发现，快乐不再是每天的主旋律。它不像小时候那样明目张胆地跳出来，而是变得更加隐秘。有时候觉得快乐藏了起来，甚至怀疑它是不是消失了。但其实，快乐一直都在，只是可能被更强烈的情绪掩盖了。焦虑、恐惧和愤怒会占据主导，让快乐显得渺小而脆弱。</p>
+<p>　　那么，如何呼唤隐藏的快乐？靠的是<strong>主动寻找</strong>。快乐不是等来的，而是我们内心对生活发出的邀请。</p>
+<h2 id="情绪的本质中立而有意义">情绪的本质：中立而有意义</h2>
+<p>　　我们常常把情绪简单分类：快乐是好的，悲伤是坏的；愤怒是不应该的，平静才是值得追求的。但事实并非如此。情绪本身是<strong>中立</strong>的，它们是我们与生活的连接方式。</p>
+<p>　　当我学会觉察情绪时，我发现自己开始理解它们存在的意义。比如，在一个失望的时刻，我会对自己说：“喔，这是悲伤来了。”在一个让人心慌的场景里，我会察觉：“这就是焦虑正在发挥作用。”这种觉察让我意识到，每种情绪的到来都有它的理由，都是为了让我更好地感受自己、保护自己。</p>
+<p>　　<strong>情绪不是要被控制的东西，而是我们与自己对话的语言。</strong></p>
+<h2 id="面对焦虑接纳还是对抗">面对焦虑，接纳还是对抗？</h2>
+<p>　　焦虑，是我情绪小队中最有存在感的成员。它让我害怕犯错，担忧未来，甚至时常幻听电话震动。曾经，我一直想摆脱这种“糟糕”的感觉，告诉自己“不要焦虑”，但结果却是焦虑愈演愈烈。后来，我尝试换一种方式，与焦虑共处。就像电影里展现的那样，<strong>焦虑从来不是敌人，它更像是一位紧张过度的朋友</strong>，需要我去倾听、安抚，而不是试图赶走它。焦虑的到来不是为了折磨我，而是为了提醒我注意一些问题。</p>
+<p>　　拥抱焦虑的关键不是“消灭它”，是<strong>允许它存在</strong>，并逐渐在与它的相处中找到成长的契机。焦虑并没有那么可怕，它可能只是你内心的一种求变信号。尝试从小事开始练习接纳，专注于当下的行动，并给予自己足够的耐心，就像农民不要责怪庄稼长得不够快，要学会尊重规律。</p>
+<p>接纳并臣服于任何情绪。我们每个人可能像自己的父母，但更像这个时代。</p>
+<h2 id="拥抱完整的自己">拥抱完整的自己</h2>
+<p>　　或许，《头脑特工队2》想告诉我们的是：每个人的情绪小队，都是为了帮助自己更好地活下去。焦虑、恐惧、愤怒，<strong>它们并不总是令人愉快，但它们存在的意义不可忽视。</strong></p>
+<p>　　当我们试图拥抱所有情绪，而不是排斥那些“负面”的部分时，我们才能真正接近完整的自我。焦虑并不可怕，愤怒也不丢脸，悲伤更不是软弱。它们是我们的同伴，是生活中的路标。</p>
+<p>　　“快乐去哪了？”这是电影留给我的问题，也是我留给自己的问题。快乐没有消失，它只是藏在我们心里的某个角落，等待我们用温柔的方式去找回它。</p>
+<p>　　你的情绪小队里，谁是队长？他们又带给你了什么？也许，当你学会和他们对话时，会发现这些情绪不仅仅是情感的波澜，它们还是人生的答案。</p>
+<p>　　希望我们都能与自己的情绪小队和平共处，在接纳它们的过程中，找到更完整的自己，<strong>拥抱独一无二的自己</strong>。</p>]]></content>
+        </item>
+        
+        <item>
+            <title>Obsidian自动化同步</title>
+            <link>https://whistleditty.github.io/posts/obsidian%E8%87%AA%E5%8A%A8%E5%8C%96%E5%90%8C%E6%AD%A5/</link>
+            <pubDate>Sat, 21 Dec 2024 17:10:58 +0800</pubDate>
+            
+            <guid>https://whistleditty.github.io/posts/obsidian%E8%87%AA%E5%8A%A8%E5%8C%96%E5%90%8C%E6%AD%A5/</guid>
+            <description>&lt;p&gt;&lt;code&gt;你好你好你好 2024-12-21 20:30:57&lt;/code&gt;&lt;/p&gt;</description>
+            <content type="html"><![CDATA[<p><code>你好你好你好 2024-12-21 20:30:57</code></p>
+<p>成功了吗？
+再试一次<br>
+成功了！</p>
+<p>把代码贴上来好了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#75715e">#!/bin/bash
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>set -euo pipefail  <span style="color:#75715e"># 设置严格的错误处理模式，遇到任何错误都会退出脚本</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Change to the script&#39;s directory</span>
+</span></span><span style="display:flex;"><span>SCRIPT_DIR<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>cd <span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>dirname <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>BASH_SOURCE[0]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">&amp;&amp;</span> pwd<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>  <span style="color:#75715e"># 获取并切换到脚本所在的目录</span>
+</span></span><span style="display:flex;"><span>cd <span style="color:#e6db74">&#34;</span>$SCRIPT_DIR<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Set variables for Obsidian to Hugo copy</span>
+</span></span><span style="display:flex;"><span>sourcePath<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/Users/xiuhao/Library/Mobile Documents/iCloud~md~obsidian/Documents/个人/posts/&#34;</span>  <span style="color:#75715e"># 定义Obsidian笔记存放博客文章的路径</span>
+</span></span><span style="display:flex;"><span>destinationPath<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/Users/xiuhao/blog/hugosite/content/posts&#34;</span>  <span style="color:#75715e"># 定义Hugo内容文件夹的路径</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Set GitHub Repo</span>
+</span></span><span style="display:flex;"><span>myrepo<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;git@github.com:whistleditty/whistleditty.github.io.git&#34;</span>  <span style="color:#75715e"># 定义GitHub上的远程仓库地址</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Set Hugo build and public directory</span>
+</span></span><span style="display:flex;"><span>hugo_dir<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/Users/xiuhao/blog/hugosite&#34;</span>  <span style="color:#75715e"># Hugo 项目根目录</span>
+</span></span><span style="display:flex;"><span>public_dir<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$hugo_dir<span style="color:#e6db74">/public&#34;</span>  <span style="color:#75715e"># Hugo 构建后生成的 public 目录</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Check for required commands</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> cmd in git rsync python3 hugo; <span style="color:#66d9ef">do</span>  <span style="color:#75715e"># 检查必要的命令是否存在</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ! command -v $cmd &amp;&gt; /dev/null; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 如果命令不存在</span>
+</span></span><span style="display:flex;"><span>        echo <span style="color:#e6db74">&#34;</span>$cmd<span style="color:#e6db74"> is not installed or not in PATH.&#34;</span>  <span style="color:#75715e"># 输出错误信息</span>
+</span></span><span style="display:flex;"><span>        exit <span style="color:#ae81ff">1</span>  <span style="color:#75715e"># 退出脚本</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 1: Check if Git is initialized, and initialize if necessary</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> ! -d <span style="color:#e6db74">&#34;.git&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 如果当前目录下没有.git文件夹</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Initializing Git repository...&#34;</span>  <span style="color:#75715e"># 输出初始化Git仓库的信息</span>
+</span></span><span style="display:flex;"><span>    git init  <span style="color:#75715e"># 初始化一个新的Git仓库</span>
+</span></span><span style="display:flex;"><span>    git remote add origin $myrepo  <span style="color:#75715e"># 添加远程仓库为origin</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Git repository already initialized.&#34;</span>  <span style="color:#75715e"># 输出Git仓库已经初始化的信息</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ! git remote | grep -q <span style="color:#e6db74">&#39;origin&#39;</span>; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 如果远程仓库列表中没有origin</span>
+</span></span><span style="display:flex;"><span>        echo <span style="color:#e6db74">&#34;Adding remote origin...&#34;</span>  <span style="color:#75715e"># 输出添加远程仓库的信息</span>
+</span></span><span style="display:flex;"><span>        git remote add origin $myrepo  <span style="color:#75715e"># 添加远程仓库为origin</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 2: Sync posts from Obsidian to Hugo content folder using rsync</span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;Syncing posts from Obsidian...&#34;</span>  <span style="color:#75715e"># 输出同步博客文章的信息</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> ! -d <span style="color:#e6db74">&#34;</span>$sourcePath<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 如果源路径不存在</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Source path does not exist: </span>$sourcePath<span style="color:#e6db74">&#34;</span>  <span style="color:#75715e"># 输出错误信息</span>
+</span></span><span style="display:flex;"><span>    exit <span style="color:#ae81ff">1</span>  <span style="color:#75715e"># 退出脚本</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> ! -d <span style="color:#e6db74">&#34;</span>$destinationPath<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 如果目标路径不存在</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Destination path does not exist: </span>$destinationPath<span style="color:#e6db74">&#34;</span>  <span style="color:#75715e"># 输出错误信息</span>
+</span></span><span style="display:flex;"><span>    exit <span style="color:#ae81ff">1</span>  <span style="color:#75715e"># 退出脚本</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>rsync -av --delete <span style="color:#e6db74">&#34;</span>$sourcePath<span style="color:#e6db74">&#34;</span> <span style="color:#e6db74">&#34;</span>$destinationPath<span style="color:#e6db74">&#34;</span>  <span style="color:#75715e"># 使用rsync同步文件，删除目标位置中源位置没有的内容</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## Step 3: Process Markdown files with Python script to handle image links</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#echo &#34;Processing image links in Markdown files...&#34;  # 输出处理Markdown文件中的图片链接的信息</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#if [ ! -f &#34;images.py&#34; ]; then  # 如果Python脚本不存在</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    echo &#34;Python script images.py not found.&#34;  # 输出错误信息</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    exit 1  # 退出脚本</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#fi</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#if ! python3 images.py; then  # 运行Python脚本</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    echo &#34;Failed to process image links.&#34;  # 如果运行失败，输出错误信息</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#    exit 1  # 退出脚本</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#fi</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 4: Build the Hugo site</span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;Building the Hugo site...&#34;</span>  <span style="color:#75715e"># 输出构建Hugo站点的信息</span>
+</span></span><span style="display:flex;"><span>cd <span style="color:#e6db74">&#34;</span>$hugo_dir<span style="color:#e6db74">&#34;</span>  <span style="color:#75715e"># 切换到 Hugo 项目目录</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> ! hugo; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 调用Hugo命令生成静态网站</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Hugo build failed.&#34;</span>  <span style="color:#75715e"># 如果构建失败，输出错误信息</span>
+</span></span><span style="display:flex;"><span>    exit <span style="color:#ae81ff">1</span>  <span style="color:#75715e"># 退出脚本</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 5: Add changes to Git</span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;Staging changes for Git...&#34;</span>  <span style="color:#75715e"># 输出将更改添加到Git暂存区的信息</span>
+</span></span><span style="display:flex;"><span>cd <span style="color:#e6db74">&#34;</span>$public_dir<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> git diff --quiet <span style="color:#f92672">&amp;&amp;</span> git diff --cached --quiet; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 如果没有新的更改</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;No changes to stage.&#34;</span>  <span style="color:#75715e"># 输出没有新更改的信息</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>    git add .  <span style="color:#75715e"># 将所有更改添加到暂存区</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 6: Commit changes with a dynamic message</span>
+</span></span><span style="display:flex;"><span>commit_message<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;New Blog Post on </span><span style="color:#66d9ef">$(</span>date +<span style="color:#e6db74">&#39;%Y-%m-%d %H:%M:%S&#39;</span><span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>  <span style="color:#75715e"># 生成提交信息，包含当前日期和时间</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> git diff --cached --quiet; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 如果没有新的更改需要提交</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;No changes to commit.&#34;</span>  <span style="color:#75715e"># 输出没有新更改的信息</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Committing changes...&#34;</span>  <span style="color:#75715e"># 输出正在提交更改的信息</span>
+</span></span><span style="display:flex;"><span>    git commit -m <span style="color:#e6db74">&#34;</span>$commit_message<span style="color:#e6db74">&#34;</span>  <span style="color:#75715e"># 提交更改</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 7: Push all changes to the main branch</span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;Deploying to GitHub Main...&#34;</span>  <span style="color:#75715e"># 输出推送到主分支的信息</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> ! git push origin master; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 推送本地更改到GitHub仓库的main分支</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Failed to push to main branch.&#34;</span>  <span style="color:#75715e"># 如果推送失败，输出错误信息</span>
+</span></span><span style="display:flex;"><span>    exit <span style="color:#ae81ff">1</span>  <span style="color:#75715e"># 退出脚本</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 8: Push the public folder to the hostinger branch using subtree split and force push</span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;Deploying to GitHub Hostinger...&#34;</span>  <span style="color:#75715e"># 输出推送到Hostinger分支的信息</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> git branch --list | grep -q <span style="color:#e6db74">&#39;hostinger-deploy&#39;</span>; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 如果存在名为hostinger-deploy的分支</span>
+</span></span><span style="display:flex;"><span>    git branch -D hostinger-deploy  <span style="color:#75715e"># 删除该分支</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> ! git subtree split --prefix public -b hostinger-deploy; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 创建一个只包含public文件夹的新分支</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Subtree split failed.&#34;</span>  <span style="color:#75715e"># 如果创建失败，输出错误信息</span>
+</span></span><span style="display:flex;"><span>    exit <span style="color:#ae81ff">1</span>  <span style="color:#75715e"># 退出脚本</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> ! git push origin hostinger-deploy:hostinger --force; <span style="color:#66d9ef">then</span>  <span style="color:#75715e"># 强制推送新分支到远程仓库的hostinger分支</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Failed to push to hostinger branch.&#34;</span>  <span style="color:#75715e"># 如果推送失败，输出错误信息</span>
+</span></span><span style="display:flex;"><span>    git branch -D hostinger-deploy  <span style="color:#75715e"># 删除临时分支</span>
+</span></span><span style="display:flex;"><span>    exit <span style="color:#ae81ff">1</span>  <span style="color:#75715e"># 退出脚本</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>git branch -D hostinger-deploy  <span style="color:#75715e"># 删除临时分支</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;All done! Site synced, processed, committed, built, and deployed.&#34;</span>  <span style="color:#75715e"># 输出完成所有操作的信息</span>
+</span></span></code></pre></div><p>整个方案是从<a href="https://www.youtube.com/@NetworkChuck">NetworkChuck</a>的代码改来的。<br>
+他直接上传了hugo整个文件夹，但似乎只要上传public文件夹就够了，他的部署方式似乎有点区别所以不能直接用？<br>
+虽然脚本还在报错<code>'public' does not exist; use 'git subtree add' Subtree split failed.</code> 但能用就行了，不管啦。
+😄</p>]]></content>
+        </item>
+        
+        <item>
+            <title>第一篇文章</title>
+            <link>https://whistleditty.github.io/posts/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</link>
+            <pubDate>Fri, 09 Feb 2024 15:34:04 +0900</pubDate>
+            
+            <guid>https://whistleditty.github.io/posts/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</guid>
+            <description>&lt;pre&gt;&lt;code&gt;今天我们之所以欢聚在这里，是为了庆祝我的blog正式被你发现了。
+&lt;/code&gt;&lt;/pre&gt;</description>
+            <content type="html"><![CDATA[<pre><code>今天我们之所以欢聚在这里，是为了庆祝我的blog正式被你发现了。
+</code></pre>
+<p>一个简单到不能再简单的博客，但折腾了很久。</p>
+<p>希望我写的东西对你没用。</p>
+<p><em>浪费时间在一些傻傻的东西上。</em></p>]]></content>
+        </item>
+        
+        <item>
+            <title>《宇宙探索编辑部》我的2023最佳电影</title>
+            <link>https://whistleditty.github.io/posts/%E5%AE%87%E5%AE%99%E6%8E%A2%E7%B4%A2%E7%BC%96%E8%BE%91%E9%83%A8%E6%88%91%E7%9A%842023%E6%9C%80%E4%BD%B3%E7%94%B5%E5%BD%B1/</link>
+            <pubDate>Sat, 30 Dec 2023 23:14:56 +0800</pubDate>
+            
+            <guid>https://whistleditty.github.io/posts/%E5%AE%87%E5%AE%99%E6%8E%A2%E7%B4%A2%E7%BC%96%E8%BE%91%E9%83%A8%E6%88%91%E7%9A%842023%E6%9C%80%E4%BD%B3%E7%94%B5%E5%BD%B1/</guid>
+            <description>&lt;blockquote&gt;
+&lt;p&gt;我们之所以现在朝九晚五，上班下班，终究还是希望有一天，我们能够有机会，去探索宇宙的。&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+            <content type="html"><![CDATA[<blockquote>
+<p>我们之所以现在朝九晚五，上班下班，终究还是希望有一天，我们能够有机会，去探索宇宙的。</p>
+</blockquote>
+<p>其实也说不清楚究竟是什么打动了我，但每片中一句台词和诗句，却是实实在在地构建起了一曲奇幻的交响乐。这部电影是如此的抽象，是无厘头的浪漫，我不止一次地思考，天才和疯子真的需要边界吗？当带入他们的视角，你知道这些是荒诞的，但又好像一切都能说得通。很好地拍出了理想主义者的内心世界。尽管这群人像是“疯子”一样，但他们的故事却充满了动人的力量。</p>
+<p>（当然，我曾自诩为理想主义者，其实我的理想主义完全没有任何理论依据的，更确切地说是全凭直觉进行判断的情感或直觉主义。）
+看的时候我就能感觉到，这注定是一部评价两极分化的电影。也将成为我最爱的电影。这种多样性正是电影艺术的魅力所在。这么说是为了表现自己的与众不同？只能说真的很对我的口味。
+是什么？
+是无厘头的浪漫，没有理由地相信。天才和疯子不需要有边界。
+是偏执狂的自我救赎</p>
+<h1 id="从民科现象-到-梦想与现实的冲突">从“民科”现象 到 梦想与现实的冲突</h1>
+<blockquote>
+<p>这不是普通的电视雪花点，这是宇宙诞生时的余晖。</p>
+</blockquote>
+<p>《世界观》一书中提到，“从任何一个世界观自身的角度来看，这一世界观的观点都显而易见是正确的。”
+影片在描绘“民科”现象时，既包含了批判也蕴含了理解。它批判了那些缺乏科学依据的理论和行为，同时也理解并展现了这些“民科”背后的动机和情感。电影通过唐志军的坚持和遭遇的种种挫折，传达出他对宇宙探索的真挚情感，</p>
+<p>尽管“民科”可能缺乏科学方法，也可能是由于现实条件的限制，无法接受正规的科学教育，但我认为，在如今科技和教育水平不断提高的年代，这种有趣的脑洞和信念是有意义的，对未知的好奇心和探索精神是值得肯定的，就像唐志军在电影中反复讲到的，<strong>“有好奇心是好事。”</strong>，人活着是为了自己而活，探索往往是出于对科学的热爱和对梦想的追求。即使现实充满挑战，但梦想本身是宝贵的，它给予人们前进的动力和生活的意义。</p>
+<h1 id="从情感到哲思">从情感到哲思</h1>
+<p>老唐是一个理想主义者，他对宇宙探索充满了热情和执着，有着坚定的信念，他是自由的，自洽的。这种追求超越了日常生活的琐碎，所谓的“生命维持餐”就是不向现实妥协的最好证明。</p>
+<p>影片中的情感并非一成不变，而是随着剧情的发展而变化。唐志军从最初的执着和乐观，到后来的挫败和绝望，再到最终的接受和释然，这种情感的转变过程让观众能够跟随角色一起经历情感的起伏，在最后无声的诗中到达顶点。
+并在父亲对女儿的情感和反思中引申到哲学的思考，他不理解的是，为什么宇宙有如此多值得探索的未知，女儿却轻言放弃。</p>
+<p>通过对古典小说《西游记》的借鉴，将地外文明与地球上的古典文学结合起来，最终回归到对人类存在意义的探讨。整部影片最触动我的台词就是在这里出现：</p>
+<blockquote>
+<p>我们人类存在在这个宇宙的意义究竟是什么。
+如果他们那么远过来，也是为了问我们这个问题呢？</p>
+</blockquote>
+<p>对于生死的探讨，对于存在和活着的意义的思考，我仍然没有结论，也许像影片给出的答案，
+<strong>原来我们每一个人既是存在的迷题，也是这个迷题的答案</strong>，每个人本身就是其意义。也许人生其实就是一种对自我的取悦。只要能自洽地开心地活着，找到属于自己的方式，找到自己所迷恋之物。活出自己的样子，便是意义。</p>
+<h1 id="拍摄方法">拍摄方法</h1>
+<p>最后浅谈一下拍摄手法，一部“伪纪录片”式的拍摄，在闭眼那段情节直接打破了第四堵墙，使得观众仿佛成为了故事的一部分。让我联想到藤本树的漫画《再见绘梨》的场面。这种方法真正做到了形式服务于内容，模糊了真实与虚构的边界，荒诞的同时如果仔细思考又好像有一定道理。</p>
+<p>自然光+肩抗，连演员都在怀疑是不是在好好拍戏的剧组。小预算的大电影，不仅展示了导演在小预算下的创意和技巧，也给予了电影业更多的可能性，证明了低成本也能将作品搬上大荧幕。</p>
+<p>试着顶一口汤锅接收宇宙的信号吧。</p>]]></content>
+        </item>
+        
+    </channel>
+</rss>

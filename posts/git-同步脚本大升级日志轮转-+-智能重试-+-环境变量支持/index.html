@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="author" content="">
+<meta name="description" content="" />
+<meta name="keywords" content="homepage, blog" />
+<meta name="robots" content="noodp" />
+<meta name="theme-color" content="" />
+<link rel="canonical" href="https://whistleditty.github.io/posts/git-%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC%E5%A4%A7%E5%8D%87%E7%BA%A7%E6%97%A5%E5%BF%97%E8%BD%AE%E8%BD%AC-&#43;-%E6%99%BA%E8%83%BD%E9%87%8D%E8%AF%95-&#43;-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%94%AF%E6%8C%81/" />
+
+
+    <title>
+        
+            Git 同步脚本大升级：日志轮转 &#43; 智能重试 &#43; 环境变量支持 :: XH&#39;s Blog 
+        
+    </title>
+
+
+
+
+
+<link rel="stylesheet" href="/main.949191c1dcc9c4a887997048b240354e47152016d821198f89448496ba42e491.css" integrity="sha256-lJGRwdzJxKiHmXBIskA1TkcVIBbYIRmPiUSElrpC5JE=">
+
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="msapplication-TileColor" content="">
+
+
+<meta itemprop="name" content="Git 同步脚本大升级：日志轮转 &#43; 智能重试 &#43; 环境变量支持">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2026-02-22T16:30:00+08:00" />
+<meta itemprop="dateModified" content="2026-02-22T16:30:00+08:00" />
+<meta itemprop="wordCount" content="156"><meta itemprop="image" content="https://whistleditty.github.io/" />
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://whistleditty.github.io/" /><meta name="twitter:title" content="Git 同步脚本大升级：日志轮转 &#43; 智能重试 &#43; 环境变量支持"/>
+<meta name="twitter:description" content=""/>
+
+
+
+    <meta property="og:title" content="Git 同步脚本大升级：日志轮转 &#43; 智能重试 &#43; 环境变量支持" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://whistleditty.github.io/posts/git-%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC%E5%A4%A7%E5%8D%87%E7%BA%A7%E6%97%A5%E5%BF%97%E8%BD%AE%E8%BD%AC-&#43;-%E6%99%BA%E8%83%BD%E9%87%8D%E8%AF%95-&#43;-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%94%AF%E6%8C%81/" /><meta property="og:image" content="https://whistleditty.github.io/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2026-02-22T16:30:00+08:00" />
+<meta property="article:modified_time" content="2026-02-22T16:30:00+08:00" />
+
+
+
+
+
+
+
+    <meta property="article:published_time" content="2026-02-22 16:30:00 &#43;0800 CST" />
+
+
+
+
+
+
+
+
+
+
+
+    </head>
+
+    
+        <body>
+    
+    
+        <div class="container">
+            <header class="header">
+    <span class="header__inner">
+        <a href="/posts" style="text-decoration: none;">
+    <div class="logo">
+        
+            <span class="logo__mark">></span>
+            <span class="logo__text ">
+                cd /posts</span>
+            <span class="logo__cursor" style=
+                  "
+                   
+                   ">
+            </span>
+        
+    </div>
+</a>
+
+
+        <span class="header__right">
+            
+                <nav class="menu">
+    <ul class="menu__inner"><li><a href="/">Home</a></li><li><a href="/posts">Blog</a></li><li><a href="/about/">About</a></li>
+    </ul>
+</nav>
+
+                <span class="menu-trigger">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                    </svg>
+                </span>
+            
+        </span>
+    </span>
+</header>
+
+
+            <div class="content">
+                
+  <main class="post">
+
+    
+    <div class="post-info">
+      <p>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-clock">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+
+        
+        
+          
+        
+
+        
+          3 分钟阅读
+        
+
+        
+        
+      </p>
+    </div>
+
+    
+    <article>
+      
+      <h1 class="post-title">
+        <a href="https://whistleditty.github.io/posts/git-%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC%E5%A4%A7%E5%8D%87%E7%BA%A7%E6%97%A5%E5%BF%97%E8%BD%AE%E8%BD%AC-&#43;-%E6%99%BA%E8%83%BD%E9%87%8D%E8%AF%95-&#43;-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%94%AF%E6%8C%81/">Git 同步脚本大升级：日志轮转 + 智能重试 + 环境变量支持</a>
+      </h1>
+
+      
+      
+
+      
+      
+
+      
+
+      
+      
+
+      
+      <div class="post-content">
+        <p>最近重构了 Obsidian 笔记的自动同步脚本，从最初的粗糙版本升级到现在的生产级状态。这半个月的迭代，让我对自动化脚本的健壮性设计有了更深的理解。</p>
+<p>如果你也在维护类似的同步工具，或许这些经验能给你一些参考。</p>
+<hr>
+<h3 id="从能用就行到真正可靠">从&quot;能用就行&quot;到&quot;真正可靠&quot;</h3>
+<p>最早版本的脚本只有 30 行，配置写死，日志随意增长。网络一卡，推送失败，脚本就报错退出，还得手动处理。</p>
+<p>这次重构的核心目标就一个：<strong>让工具真正隐形</strong>——你运行它，然后忘记它，它自己搞定一切。</p>
+<hr>
+<h3 id="核心改进点">核心改进点</h3>
+<p><strong>1. 环境变量配置支持</strong></p>
+<p>告别硬编码路径：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>REPO_PATH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>REPO_PATH<span style="color:#66d9ef">:-</span>/default/path<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>LOG_FILE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>LOG_FILE<span style="color:#66d9ef">:-</span>/tmp/git-auto-sync.log<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span></code></pre></div><p>这意味着同一个脚本可以在多台设备上运行，只需通过环境变量覆盖配置。</p>
+<p><strong>2. 日志自动轮转</strong></p>
+<p>日志不控制的话会无限膨胀。我实现了一个标准的日志轮转机制：</p>
+<ul>
+<li>超过 10MB 自动压缩归档</li>
+<li>保留最近 5 个压缩文件</li>
+<li>自动清理 7 天前的旧日志</li>
+<li>兼容 macOS 和 Linux 的 <code>stat</code> 命令差异</li>
+</ul>
+<p>关键是这个架构：先检查大小 → 压缩当前 → 重命名旧文件 → 清理超限。</p>
+<p><strong>3. Git 配置持久化</strong></p>
+<p>原版每次 <code>git push</code> 都要传 <code>-c http.lowSpeedLimit=xxx</code>，既繁琐又不优雅。现在的做法是：第一次运行时在仓库级配置，后续直接复用。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git config http.lowSpeedLimit <span style="color:#ae81ff">1000</span>
+</span></span><span style="display:flex;"><span>git config http.lowSpeedTime <span style="color:#ae81ff">999</span>
+</span></span></code></pre></div><p>一次设置，永久生效。</p>
+<p><strong>4. 指数退避重试（最重要的改进）</strong></p>
+<p>网络不稳定是常态，push 失败不应该直接报错退出：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>retry_count<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>delay<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> $retry_count -lt <span style="color:#ae81ff">3</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> git push; <span style="color:#66d9ef">then</span> success; break; <span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>    sleep $delay
+</span></span><span style="display:flex;"><span>    delay<span style="color:#f92672">=</span><span style="color:#66d9ef">$((</span>delay <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span><span style="color:#66d9ef">))</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><p>5秒 → 10秒 → 20秒，最多试3次。大多数网络抖动都能自动恢复。</p>
+<hr>
+<h3 id="可配置参数一览">可配置参数一览</h3>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MAX_LOG_SIZE</code></td>
+<td>日志轮转阈值（默认 10MB）</td>
+</tr>
+<tr>
+<td><code>MAX_LOG_FILES</code></td>
+<td>保留的压缩文件数（默认 5）</td>
+</tr>
+<tr>
+<td><code>MAX_RETRIES</code></td>
+<td>推送最大重试次数（默认 3）</td>
+</tr>
+<tr>
+<td><code>RETRY_DELAY</code></td>
+<td>初始重试延迟（默认 5 秒）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="使用方式">使用方式</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 基本用法</span>
+</span></span><span style="display:flex;"><span>./git-sync.sh
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 自定义配置</span>
+</span></span><span style="display:flex;"><span>export MAX_LOG_SIZE<span style="color:#f92672">=</span><span style="color:#ae81ff">5242880</span>  <span style="color:#75715e"># 5MB 轮转</span>
+</span></span><span style="display:flex;"><span>export MAX_RETRIES<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>          <span style="color:#75715e"># 重试5次</span>
+</span></span><span style="display:flex;"><span>./git-sync.sh
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># crontab 定时同步（自带锁防止并发）</span>
+</span></span><span style="display:flex;"><span>*/5 * * * * /path/to/git-sync.sh &gt;&gt; /dev/null 2&gt;&amp;<span style="color:#ae81ff">1</span>
+</span></span></code></pre></div><p>完整脚本约 200 行，已保存至仓库根目录（<code>git-sync.sh</code>）。</p>
+<hr>
+<h3 id="测试数据">测试数据</h3>
+<p>最新一次同步：</p>
+<ul>
+<li>处理文件：6 个</li>
+<li>变更行数：+105 / -17</li>
+<li>耗时：~4 秒</li>
+<li>日志大小：1.4KB</li>
+</ul>
+<p>所有功能均验证通过，包括锁机制、日志轮转、push 重试等。网络短暂中断时，脚本会自动重试并最终成功。</p>
+<hr>
+<h3 id="写在最后">写在最后</h3>
+<p>自动化工具的价值，不是让你更忙，而是让你<strong>忘记它的存在</strong>。</p>
+<p>一个真正好用的脚本，应该像水电一样：你打开开关，它就开始工作；你不需要理解它是怎么发电的，也不需要担心它会突然断掉。</p>
+<p>这次重构的目标就是靠近这个理想。脚本依然可以继续优化，比如引入邮件通知、支持多分支、添加更详细的统计等。但现阶段，它已足够稳定，可以放心扔进 crontab，让它默默工作。</p>
+<hr>
+<p>如果你也有类似的自动化需求，欢迎交流。一起让工具变得更聪明，让时间花在更有价值的事情上。</p>
+      </div>
+    </article>
+
+    
+    <hr />
+
+    
+    <div class="post-info">
+      
+      
+      
+      
+
+      
+      <p>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+
+        
+        
+
+        
+        <span id="word-count">0 字</span>
+      </p>
+
+      
+      <script>  
+        document.addEventListener("DOMContentLoaded", function () {
+          const content = document.querySelector(".post-content").innerText;
+          const wordCount = content.length;
+          document.getElementById("word-count").textContent = wordCount + " 字";
+        });
+      </script>
+
+      
+      <p>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+
+        
+        
+          2026-02-22 16:30
+        
+
+        
+         
+          
+        
+      </p>
+
+      
+    </div>
+
+    
+
+    
+    
+    <div class="pagination">
+        
+        <div class="pagination__title">
+            <span class="pagination__title-h">Read other posts</span>
+            <hr />
+        </div>
+        
+
+        <div class="pagination__buttons">
+            
+
+            
+            <span class="button next">
+                <a href="https://whistleditty.github.io/posts/%E8%81%8C%E5%9C%BA%E4%B8%AD%E6%9C%80%E8%A2%AB%E4%BD%8E%E4%BC%B0%E7%9A%84%E8%83%BD%E5%8A%9B%E4%BB%8E%E6%89%93%E6%96%AD%E4%B8%AD%E6%81%A2%E5%A4%8D%E7%9A%84%E9%80%9F%E5%BA%A6/">
+                    <span class="button__text">职场中最被低估的能力：从打断中恢复的速度</span>
+                    <span class="button__icon">→</span>
+                </a>
+            </span>
+            
+        </div>
+    </div>
+
+
+    
+    
+
+    
+    
+
+    
+    
+
+  </main>
+
+            </div>
+
+            
+                <footer class="footer">
+    
+    
+</footer>
+
+            
+        </div>
+
+        
+
+
+
+<script type="text/javascript" src="/bundle.min.46e438bd2eca7eb6358c700b40f6f56b22ab0b92503ecc11a2d8e4bcc610b8b4da83e5ea3d3e84fdb5f3c3c765744b9f5bbaf43cf5a027910be07ee39a9c12a1.js" integrity="sha512-RuQ4vS7KfrY1jHALQPb1ayKrC5JQPswRotjkvMYQuLTag&#43;XqPT6E/bXzw8dldEufW7r0PPWgJ5EL4H7jmpwSoQ=="></script>
+
+
+
+
+    </body>
+</html>
