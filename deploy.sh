@@ -579,44 +579,101 @@ deploy_to_hostinger() {
 
     if [[ "${CFG_DRY_RUN}" == "true" ]]; then
         log_warn "DRY-RUN: 跳过 Hostinger 部署"
-        log_info "将执行: git subtree split --prefix public -b <branch>"
-        log_info "将执行: git push origin <branch>:${CFG_HOSTINGER_BRANCH} --force"
+        if [[ -d "${CFG_PUBLIC_DIR}/.git" ]]; then
+            log_info "检测到 public 是独立 Git 仓库，将执行: (cd public && git add -A && git commit -m 'Deploy' && git push origin ${CFG_HOSTINGER_BRANCH})"
+        else
+            log_info "将执行: git subtree split --prefix public -b <branch>"
+            log_info "将执行: git push origin <branch>:${CFG_HOSTINGER_BRANCH} --force"
+        fi
         return 0
     fi
 
-    # 生成唯一的临时分支名
-    local timestamp
-    timestamp="$(date +%Y%m%d-%H%M%S)"
-    local temp_branch="${TEMP_BRANCH_PREFIX}${timestamp}"
-    add_cleanup "branch" "$temp_branch"
+    # 检测 public 是否为独立的 Git 仓库（常见配置）
+    if [[ -d "${CFG_PUBLIC_DIR}/.git" ]]; then
+        log_debug "检测到 public 是独立 Git 仓库，使用独立仓库部署方式"
 
-    # 删除可能存在的旧临时分支
-    if git branch --list | grep -q "^  ${temp_branch}$"; then
-        git branch -D "$temp_branch" 2>/dev/null || true
-    fi
+        cd "${CFG_PUBLIC_DIR}"
 
-    # 使用 git subtree split 从 public 目录创建分支
-    log_debug "创建 subtree 分支: $temp_branch"
-    if ! git subtree split --prefix public -b "$temp_branch"; then
-        log_error "Subtree split 失败"
-        return 1
-    fi
+        # 检查是否有更改
+        if git diff --quiet && git diff --cached --quiet; then
+            log_info "public 仓库无更改，跳过部署"
+            return 0
+        fi
 
-    # 强制推送到 hostinger 分支
-    log_info "推送到 ${CFG_HOSTINGER_BRANCH} 分支..."
-    if git push origin "$temp_branch:${CFG_HOSTINGER_BRANCH}" --force; then
-        log_success "Hostinger 部署成功"
+        # 添加所有更改
+        git add -A || {
+            log_error "public git add 失败"
+            return 1
+        }
+
+        # 提交
+        if git diff --cached --quiet; then
+            log_info "public 仓库无需要提交的更改"
+        else
+            if ! git commit -m "自动化部署: ${SCRIPT_NAME} on $(date +'%Y-%m-%d %H:%M:%S')"; then
+                log_error "public 仓库提交失败"
+                return 1
+            fi
+            log_success "public 仓库提交成功"
+        fi
+
+        # 确保在正确的分支上
+        local current_branch
+        current_branch="$(git symbolic-ref --short HEAD 2>/dev/null || echo '')"
+        if [[ "$current_branch" != "${CFG_HOSTINGER_BRANCH}" ]] && [[ -n "$current_branch" ]]; then
+            log_info "切换到分支: ${CFG_HOSTINGER_BRANCH}"
+            git checkout "${CFG_HOSTINGER_BRANCH}" 2>/dev/null || {
+                log_warn "分支 ${CFG_HOSTINGER_BRANCH} 不存在，创建新分支"
+                git checkout -b "${CFG_HOSTINGER_BRANCH}"
+            }
+        fi
+
+        # 推送到远程
+        log_info "推送到 ${CFG_HOSTINGER_BRANCH} 分支..."
+        if git push origin "${CFG_HOSTINGER_BRANCH}"; then
+            log_success "Hostinger 部署成功（独立仓库模式）"
+            return 0
+        else
+            log_error "Hostinger 部署失败（独立仓库模式）"
+            return 1
+        fi
     else
-        log_error "Hostinger 部署失败"
+        log_debug "使用 git subtree split 传统方式"
+
+        # 生成唯一的临时分支名
+        local timestamp
+        timestamp="$(date +%Y%m%d-%H%M%S)"
+        local temp_branch="${TEMP_BRANCH_PREFIX}${timestamp}"
+        add_cleanup "branch" "$temp_branch"
+
+        # 删除可能存在的旧临时分支
+        if git branch --list | grep -q "^  ${temp_branch}$"; then
+            git branch -D "$temp_branch" 2>/dev/null || true
+        fi
+
+        # 使用 git subtree split 从 public 目录创建分支
+        log_debug "创建 subtree 分支: $temp_branch"
+        if ! git subtree split --prefix public -b "$temp_branch"; then
+            log_error "Subtree split 失败"
+            return 1
+        fi
+
+        # 强制推送到 hostinger 分支
+        log_info "推送到 ${CFG_HOSTINGER_BRANCH} 分支..."
+        if git push origin "$temp_branch:${CFG_HOSTINGER_BRANCH}" --force; then
+            log_success "Hostinger 部署成功"
+        else
+            log_error "Hostinger 部署失败"
+            git branch -D "$temp_branch" 2>/dev/null || true
+            return 1
+        fi
+
+        # 清理临时分支
         git branch -D "$temp_branch" 2>/dev/null || true
-        return 1
+        RESOURCES_TO_CLEAN=("${RESOURCES_TO_CLEAN[@]/"branch:$temp_branch"/}")
+
+        return 0
     fi
-
-    # 清理临时分支
-    git branch -D "$temp_branch" 2>/dev/null || true
-    RESOURCES_TO_CLEAN=("${RESOURCES_TO_CLEAN[@]/"branch:$temp_branch"/}")
-
-    return 0
 }
 
 # ============================================================================
